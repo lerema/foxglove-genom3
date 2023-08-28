@@ -1,0 +1,17 @@
+
+# pkg-config file for FoxgloveStudio interface and codels library
+#
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+datarootdir=@datarootdir@
+idldir=@datadir@/idl
+
+Name: FoxgloveStudio-genom3
+Description: FoxgloveStudio interface and codels library
+Version: @PACKAGE_VERSION@
+Requires: felix-idl, vision-idl, genom3 >= 2.99.26
+Cflags: -I${includedir} -I${idldir}
+Libs: -L${libdir} -lFoxgloveStudio_codels
+Libs.private: @codels_requires_LIBS@

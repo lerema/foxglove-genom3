@@ -1,0 +1,117 @@
+
+
+// This file was generated from foxglove.gen by the skeleton
+// template. Manual changes should be preserved, although they should
+// rather be added to the "doc" attributes of the genom objects defined in
+// foxglove.gen.
+
+= FoxgloveStudio component
+shasthamsa@laas.fr
+1.0
+:toc: left
+
+// fix default asciidoctor stylesheet issue #2407 and add hr clear rule
+ifdef::backend-html5[]
+[pass]
+++++
+<link rel="stylesheet" href="data:text/css,p{font-size: inherit !important}" >
+<link rel="stylesheet" href="data:text/css,hr{clear: both}" >
+++++
+endif::[]
+
+
+A GenoM module for foxglove studio integration.
+
+
+== Ports
+
+
+[[frame]]
+=== frame (multiple in)
+
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Data structure
+[disc]
+ * `struct ::or::sensor::frame` `frame`
+ ** `struct ::or::time::ts` `ts`
+ *** `long` `sec`
+ *** `long` `nsec`
+ ** `boolean` `compressed`
+ ** `unsigned short` `height`
+ ** `unsigned short` `width`
+ ** `unsigned short` `bpp`
+ ** `sequence< octet >` `pixels`
+
+|===
+
+The image frame port.
+
+'''
+
+== Services
+
+[[set_debug]]
+=== set_debug (attribute)
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Inputs
+[disc]
+ * `boolean` `debug` (default `"0"`) Enable debug (default: false)
+
+|===
+
+Set the debug mode.
+
+'''
+
+[[set_verbose_level]]
+=== set_verbose_level (attribute)
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Inputs
+[disc]
+ * `octet` `verbose_level` (default `"0"`) Verbose level
+
+|===
+
+Set the verbose level.
+
+'''
+
+== Tasks
+
+[[publish]]
+=== publish
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Context
+[disc]
+  * Free running
+a|.Throws
+[disc]
+ * `exception ::FoxgloveStudio::e_BAD_CONFIG`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_BAD_PORT`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_OPENCV_ERROR`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_OUT_OF_MEM`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+|===
+
+Publish to foxglove studio.
+
+'''

@@ -1,0 +1,81 @@
+/*
+ * Copyright (c) 2023 LAAS/CNRS
+ *
+ * Author: Selvakumar H S - LAAS/CNRS
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+#pragma require "felix-idl"
+#pragma require "vision-idl"
+
+#include "or/sensor/camera.gen"
+
+// TODO: Add checkerboard detection and calibration
+/* -------------------------- MODULE DECLARATION --------------------------- */
+component FoxgloveStudio {
+  version "1.0";
+  email	  "shasthamsa@laas.fr";
+  lang	  "c";
+  require "genom3 >= 2.99.26";
+  doc 	  "A GenoM module for foxglove studio integration.";
+
+  codels-require "opencv4, felix-g3utils, vision-idl";
+
+  exception e_BAD_PORT { short code; string<128> message; };
+  exception e_OPENCV_ERROR { short code; string<128> message; };
+  exception e_OUT_OF_MEM { short code; string<128> message; };
+  exception e_BAD_CONFIG { short code; string<128> message; };
+
+  /* -------------------------- IDS --------------------------- */
+  ids {
+    sequence<string> image_port_names;
+
+    boolean debug;
+    octet verbose_level;
+  };
+
+  /* ------------- DEFINITION OF PORTS -------------- */
+  // Camera
+  port multiple in or::sensor::frame frame {
+    doc "The image frame port.";
+  };
+
+  /* ------------------ TASK DEFINITION -------------------- */
+  task publish {
+    doc "Publish to foxglove studio.";
+
+    codel<start> wait_for_ports(inout ::ids, in ::port)
+        yield setup, pause::start;
+    codel<setup> setup_port_serialization(in ::ids, in ::port)
+        yield publish, start;
+    codel<publish> publish_data(in ::ids, in ::port)
+        yield publish, pause::start;
+
+    throw e_BAD_CONFIG, e_BAD_PORT, e_OPENCV_ERROR, e_OUT_OF_MEM;
+  };
+
+  /* ------------------ ACTIVITY DEFINITION --------------------- */
+
+
+  /* ------------------ SERVICE DEFINITION: Attributes -------------------- */
+  attribute set_debug(in debug = FALSE : "Enable debug (default: false)" ) {
+    doc "Set the debug mode.";
+  };
+
+  attribute set_verbose_level(in verbose_level = 0 : "Verbose level") {
+    doc "Set the verbose level.";
+  };
+
+  /* ------------------ SERVICE DEFINITION: Functions -------------------- */
+};

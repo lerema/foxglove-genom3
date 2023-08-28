@@ -1,0 +1,13 @@
+
+# pkg-config file for uninstalled FoxgloveStudio interface and codels library
+#
+prefix=@abs_top_builddir@
+libdir=${prefix}/codels
+includedir=${prefix}/codels
+
+Name: FoxgloveStudio-genom3
+Description: FoxgloveStudio interface and codels library
+Version: @PACKAGE_VERSION@
+Requires: felix-idl, vision-idl, genom3 >= 2.99.26
+Libs: ${libdir}/libFoxgloveStudio_codels.la
+Libs.private: @codels_requires_LIBS@
