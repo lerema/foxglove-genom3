@@ -7,7 +7,7 @@ libFoxgloveStudio_codels_la_SOURCES +=	FoxgloveStudio_publish_codels.cc
 libFoxgloveStudio_codels_la_SOURCES += foxglove/*.hpp
 libFoxgloveStudio_codels_la_SOURCES += foxglove/*.h
 
-libFoxgloveStudio_codels_la_CPPFLAGS =	$(requires_CFLAGS)
+libFoxgloveStudio_codels_la_CPPFLAGS =	$(requires_CFLAGS) --std=c++17
 libFoxgloveStudio_codels_la_LIBADD   =	$(requires_LIBS)
 libFoxgloveStudio_codels_la_CPPFLAGS+=	$(codels_requires_CFLAGS)
 libFoxgloveStudio_codels_la_LIBADD  +=	$(codels_requires_LIBS)

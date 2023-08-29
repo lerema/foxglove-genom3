@@ -82,6 +82,33 @@ Set the verbose level.
 
 '''
 
+[[setup_server]]
+=== setup_server (function)
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Inputs
+[disc]
+ * `string` `server_ip` (default `"0.0.0.0"`) Websocket server ip
+
+ * `unsigned short` `server_port` (default `"8765"`) Websocket server port
+
+a|.Throws
+[disc]
+ * `exception ::FoxgloveStudio::e_BAD_CONFIG`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_BAD_PORT`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+|===
+
+Setup the websocket connection.
+
+'''
+
 == Tasks
 
 [[publish]]

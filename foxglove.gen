@@ -21,7 +21,6 @@
 
 #include "or/sensor/camera.gen"
 
-// TODO: Add checkerboard detection and calibration
 /* -------------------------- MODULE DECLARATION --------------------------- */
 component FoxgloveStudio {
   version "1.0";
@@ -30,7 +29,7 @@ component FoxgloveStudio {
   require "genom3 >= 2.99.26";
   doc 	  "A GenoM module for foxglove studio integration.";
 
-  codels-require "opencv4, felix-g3utils, vision-idl, flatbuffers";
+  codels-require "opencv4, felix-g3utils, vision-idl, flatbuffers, openssl";
 
   exception e_BAD_PORT { short code; string<128> message; };
   exception e_OPENCV_ERROR { short code; string<128> message; };
@@ -78,4 +77,13 @@ component FoxgloveStudio {
   };
 
   /* ------------------ SERVICE DEFINITION: Functions -------------------- */
+  function setup_server(in string server_ip ="0.0.0.0" : "Websocket server ip",
+                            in unsigned short server_port = 8765 : "Websocket server port") {
+    doc "Setup the websocket connection.";
+    validate check_websocket_server_ip(local in server_ip, local in server_port);
+
+    codel start_websocket_connection(inout ::ids);
+
+    throw e_BAD_CONFIG, e_BAD_PORT;
+  };
 };
