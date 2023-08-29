@@ -6,12 +6,26 @@
 
 #include "flatbuffers/flatbuffers.h"
 
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
+
 namespace foxglove {
 
 struct Color;
+struct ColorBuilder;
+
+inline const ::flatbuffers::TypeTable *ColorTypeTable();
 
 /// A color in RGBA format
-struct Color FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct Color FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ColorBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return ColorTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_R = 4,
     VT_G = 6,
@@ -34,19 +48,20 @@ struct Color FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   double a() const {
     return GetField<double>(VT_A, 1.0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<double>(verifier, VT_R) &&
-           VerifyField<double>(verifier, VT_G) &&
-           VerifyField<double>(verifier, VT_B) &&
-           VerifyField<double>(verifier, VT_A) &&
+           VerifyField<double>(verifier, VT_R, 8) &&
+           VerifyField<double>(verifier, VT_G, 8) &&
+           VerifyField<double>(verifier, VT_B, 8) &&
+           VerifyField<double>(verifier, VT_A, 8) &&
            verifier.EndTable();
   }
 };
 
 struct ColorBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  typedef Color Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_r(double r) {
     fbb_.AddElement<double>(Color::VT_R, r, 1.0);
   }
@@ -59,20 +74,19 @@ struct ColorBuilder {
   void add_a(double a) {
     fbb_.AddElement<double>(Color::VT_A, a, 1.0);
   }
-  explicit ColorBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit ColorBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ColorBuilder &operator=(const ColorBuilder &);
-  flatbuffers::Offset<Color> Finish() {
+  ::flatbuffers::Offset<Color> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<Color>(end);
+    auto o = ::flatbuffers::Offset<Color>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<Color> CreateColor(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<Color> CreateColor(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     double r = 1.0,
     double g = 1.0,
     double b = 1.0,
@@ -85,33 +99,52 @@ inline flatbuffers::Offset<Color> CreateColor(
   return builder_.Finish();
 }
 
+inline const ::flatbuffers::TypeTable *ColorTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "r",
+    "g",
+    "b",
+    "a"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 4, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::Color *GetColor(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::Color>(buf);
+  return ::flatbuffers::GetRoot<foxglove::Color>(buf);
 }
 
 inline const foxglove::Color *GetSizePrefixedColor(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::Color>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::Color>(buf);
 }
 
 inline bool VerifyColorBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::Color>(nullptr);
 }
 
 inline bool VerifySizePrefixedColorBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::Color>(nullptr);
 }
 
 inline void FinishColorBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Color> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Color> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedColorBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Color> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Color> root) {
   fbb.FinishSizePrefixed(root);
 }
 

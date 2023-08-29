@@ -6,12 +6,22 @@
 
 #include "flatbuffers/flatbuffers.h"
 
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
+
 namespace foxglove {
 
 struct PackedElementField;
+struct PackedElementFieldBuilder;
+
+inline const ::flatbuffers::TypeTable *PackedElementFieldTypeTable();
 
 /// Numeric type
-enum NumericType {
+enum NumericType : uint8_t {
   NumericType_UNKNOWN = 0,
   NumericType_UINT8 = 1,
   NumericType_INT8 = 2,
@@ -41,7 +51,7 @@ inline const NumericType (&EnumValuesNumericType())[9] {
 }
 
 inline const char * const *EnumNamesNumericType() {
-  static const char * const names[] = {
+  static const char * const names[10] = {
     "UNKNOWN",
     "UINT8",
     "INT8",
@@ -57,69 +67,73 @@ inline const char * const *EnumNamesNumericType() {
 }
 
 inline const char *EnumNameNumericType(NumericType e) {
-  if (e < NumericType_UNKNOWN || e > NumericType_FLOAT64) return "";
+  if (::flatbuffers::IsOutRange(e, NumericType_UNKNOWN, NumericType_FLOAT64)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesNumericType()[index];
 }
 
 /// A field present within each element in a byte array of packed elements.
-struct PackedElementField FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct PackedElementField FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PackedElementFieldBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return PackedElementFieldTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
     VT_OFFSET = 6,
     VT_TYPE = 8
   };
   /// Name of the field
-  const flatbuffers::String *name() const {
-    return GetPointer<const flatbuffers::String *>(VT_NAME);
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
   }
   /// Byte offset from start of data buffer
   uint32_t offset() const {
     return GetField<uint32_t>(VT_OFFSET, 0);
   }
   /// Type of data in the field. Integers are stored using little-endian byte order.
-  NumericType type() const {
-    return static_cast<NumericType>(GetField<uint8_t>(VT_TYPE, 0));
+  foxglove::NumericType type() const {
+    return static_cast<foxglove::NumericType>(GetField<uint8_t>(VT_TYPE, 0));
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
            verifier.VerifyString(name()) &&
-           VerifyField<uint32_t>(verifier, VT_OFFSET) &&
-           VerifyField<uint8_t>(verifier, VT_TYPE) &&
+           VerifyField<uint32_t>(verifier, VT_OFFSET, 4) &&
+           VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
            verifier.EndTable();
   }
 };
 
 struct PackedElementFieldBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_name(flatbuffers::Offset<flatbuffers::String> name) {
+  typedef PackedElementField Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
     fbb_.AddOffset(PackedElementField::VT_NAME, name);
   }
   void add_offset(uint32_t offset) {
     fbb_.AddElement<uint32_t>(PackedElementField::VT_OFFSET, offset, 0);
   }
-  void add_type(NumericType type) {
+  void add_type(foxglove::NumericType type) {
     fbb_.AddElement<uint8_t>(PackedElementField::VT_TYPE, static_cast<uint8_t>(type), 0);
   }
-  explicit PackedElementFieldBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit PackedElementFieldBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  PackedElementFieldBuilder &operator=(const PackedElementFieldBuilder &);
-  flatbuffers::Offset<PackedElementField> Finish() {
+  ::flatbuffers::Offset<PackedElementField> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<PackedElementField>(end);
+    auto o = ::flatbuffers::Offset<PackedElementField>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<PackedElementField> CreatePackedElementField(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> name = 0,
+inline ::flatbuffers::Offset<PackedElementField> CreatePackedElementField(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
     uint32_t offset = 0,
-    NumericType type = NumericType_UNKNOWN) {
+    foxglove::NumericType type = foxglove::NumericType_UNKNOWN) {
   PackedElementFieldBuilder builder_(_fbb);
   builder_.add_offset(offset);
   builder_.add_name(name);
@@ -127,11 +141,11 @@ inline flatbuffers::Offset<PackedElementField> CreatePackedElementField(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<PackedElementField> CreatePackedElementFieldDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<PackedElementField> CreatePackedElementFieldDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *name = nullptr,
     uint32_t offset = 0,
-    NumericType type = NumericType_UNKNOWN) {
+    foxglove::NumericType type = foxglove::NumericType_UNKNOWN) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   return foxglove::CreatePackedElementField(
       _fbb,
@@ -140,33 +154,85 @@ inline flatbuffers::Offset<PackedElementField> CreatePackedElementFieldDirect(
       type);
 }
 
+inline const ::flatbuffers::TypeTable *NumericTypeTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::NumericTypeTypeTable
+  };
+  static const char * const names[] = {
+    "UNKNOWN",
+    "UINT8",
+    "INT8",
+    "UINT16",
+    "INT16",
+    "UINT32",
+    "INT32",
+    "FLOAT32",
+    "FLOAT64"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_ENUM, 9, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *PackedElementFieldTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_STRING, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::NumericTypeTypeTable
+  };
+  static const char * const names[] = {
+    "name",
+    "offset",
+    "type"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 3, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::PackedElementField *GetPackedElementField(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::PackedElementField>(buf);
+  return ::flatbuffers::GetRoot<foxglove::PackedElementField>(buf);
 }
 
 inline const foxglove::PackedElementField *GetSizePrefixedPackedElementField(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::PackedElementField>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::PackedElementField>(buf);
 }
 
 inline bool VerifyPackedElementFieldBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::PackedElementField>(nullptr);
 }
 
 inline bool VerifySizePrefixedPackedElementFieldBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::PackedElementField>(nullptr);
 }
 
 inline void FinishPackedElementFieldBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::PackedElementField> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::PackedElementField> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedPackedElementFieldBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::PackedElementField> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::PackedElementField> root) {
   fbb.FinishSizePrefixed(root);
 }
 

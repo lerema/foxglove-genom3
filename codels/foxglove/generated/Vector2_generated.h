@@ -6,12 +6,26 @@
 
 #include "flatbuffers/flatbuffers.h"
 
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
+
 namespace foxglove {
 
 struct Vector2;
+struct Vector2Builder;
+
+inline const ::flatbuffers::TypeTable *Vector2TypeTable();
 
 /// A vector in 2D space that represents a direction only
-struct Vector2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct Vector2 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef Vector2Builder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return Vector2TypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_X = 4,
     VT_Y = 6
@@ -24,37 +38,37 @@ struct Vector2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   double y() const {
     return GetField<double>(VT_Y, 1.0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<double>(verifier, VT_X) &&
-           VerifyField<double>(verifier, VT_Y) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
            verifier.EndTable();
   }
 };
 
 struct Vector2Builder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  typedef Vector2 Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_x(double x) {
     fbb_.AddElement<double>(Vector2::VT_X, x, 1.0);
   }
   void add_y(double y) {
     fbb_.AddElement<double>(Vector2::VT_Y, y, 1.0);
   }
-  explicit Vector2Builder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit Vector2Builder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  Vector2Builder &operator=(const Vector2Builder &);
-  flatbuffers::Offset<Vector2> Finish() {
+  ::flatbuffers::Offset<Vector2> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<Vector2>(end);
+    auto o = ::flatbuffers::Offset<Vector2>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<Vector2> CreateVector2(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<Vector2> CreateVector2(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     double x = 1.0,
     double y = 1.0) {
   Vector2Builder builder_(_fbb);
@@ -63,33 +77,48 @@ inline flatbuffers::Offset<Vector2> CreateVector2(
   return builder_.Finish();
 }
 
+inline const ::flatbuffers::TypeTable *Vector2TypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 2, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::Vector2 *GetVector2(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::Vector2>(buf);
+  return ::flatbuffers::GetRoot<foxglove::Vector2>(buf);
 }
 
 inline const foxglove::Vector2 *GetSizePrefixedVector2(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::Vector2>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::Vector2>(buf);
 }
 
 inline bool VerifyVector2Buffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::Vector2>(nullptr);
 }
 
 inline bool VerifySizePrefixedVector2Buffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::Vector2>(nullptr);
 }
 
 inline void FinishVector2Buffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Vector2> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Vector2> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedVector2Buffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Vector2> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Vector2> root) {
   fbb.FinishSizePrefixed(root);
 }
 

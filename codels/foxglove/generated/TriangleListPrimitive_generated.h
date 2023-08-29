@@ -6,18 +6,404 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-#include "Color_generated.h"
-#include "Point3_generated.h"
-#include "Pose_generated.h"
-#include "Quaternion_generated.h"
-#include "Vector3_generated.h"
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
 
 namespace foxglove {
 
+struct Color;
+struct ColorBuilder;
+
+struct Point3;
+struct Point3Builder;
+
+struct Quaternion;
+struct QuaternionBuilder;
+
+struct Vector3;
+struct Vector3Builder;
+
+struct Pose;
+struct PoseBuilder;
+
 struct TriangleListPrimitive;
+struct TriangleListPrimitiveBuilder;
+
+inline const ::flatbuffers::TypeTable *ColorTypeTable();
+
+inline const ::flatbuffers::TypeTable *Point3TypeTable();
+
+inline const ::flatbuffers::TypeTable *QuaternionTypeTable();
+
+inline const ::flatbuffers::TypeTable *Vector3TypeTable();
+
+inline const ::flatbuffers::TypeTable *PoseTypeTable();
+
+inline const ::flatbuffers::TypeTable *TriangleListPrimitiveTypeTable();
+
+/// A color in RGBA format
+struct Color FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ColorBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return ColorTypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_R = 4,
+    VT_G = 6,
+    VT_B = 8,
+    VT_A = 10
+  };
+  /// Red value between 0 and 1
+  double r() const {
+    return GetField<double>(VT_R, 1.0);
+  }
+  /// Green value between 0 and 1
+  double g() const {
+    return GetField<double>(VT_G, 1.0);
+  }
+  /// Blue value between 0 and 1
+  double b() const {
+    return GetField<double>(VT_B, 1.0);
+  }
+  /// Alpha value between 0 and 1
+  double a() const {
+    return GetField<double>(VT_A, 1.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_R, 8) &&
+           VerifyField<double>(verifier, VT_G, 8) &&
+           VerifyField<double>(verifier, VT_B, 8) &&
+           VerifyField<double>(verifier, VT_A, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct ColorBuilder {
+  typedef Color Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_r(double r) {
+    fbb_.AddElement<double>(Color::VT_R, r, 1.0);
+  }
+  void add_g(double g) {
+    fbb_.AddElement<double>(Color::VT_G, g, 1.0);
+  }
+  void add_b(double b) {
+    fbb_.AddElement<double>(Color::VT_B, b, 1.0);
+  }
+  void add_a(double a) {
+    fbb_.AddElement<double>(Color::VT_A, a, 1.0);
+  }
+  explicit ColorBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Color> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Color>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Color> CreateColor(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double r = 1.0,
+    double g = 1.0,
+    double b = 1.0,
+    double a = 1.0) {
+  ColorBuilder builder_(_fbb);
+  builder_.add_a(a);
+  builder_.add_b(b);
+  builder_.add_g(g);
+  builder_.add_r(r);
+  return builder_.Finish();
+}
+
+/// A point representing a position in 3D space
+struct Point3 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef Point3Builder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return Point3TypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6,
+    VT_Z = 8
+  };
+  /// x coordinate position
+  double x() const {
+    return GetField<double>(VT_X, 0.0);
+  }
+  /// y coordinate position
+  double y() const {
+    return GetField<double>(VT_Y, 0.0);
+  }
+  /// z coordinate position
+  double z() const {
+    return GetField<double>(VT_Z, 0.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
+           VerifyField<double>(verifier, VT_Z, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct Point3Builder {
+  typedef Point3 Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(double x) {
+    fbb_.AddElement<double>(Point3::VT_X, x, 0.0);
+  }
+  void add_y(double y) {
+    fbb_.AddElement<double>(Point3::VT_Y, y, 0.0);
+  }
+  void add_z(double z) {
+    fbb_.AddElement<double>(Point3::VT_Z, z, 0.0);
+  }
+  explicit Point3Builder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Point3> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Point3>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Point3> CreatePoint3(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double x = 0.0,
+    double y = 0.0,
+    double z = 0.0) {
+  Point3Builder builder_(_fbb);
+  builder_.add_z(z);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  return builder_.Finish();
+}
+
+/// A [quaternion](https://eater.net/quaternions) representing a rotation in 3D space
+struct Quaternion FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef QuaternionBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return QuaternionTypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6,
+    VT_Z = 8,
+    VT_W = 10
+  };
+  /// x value
+  double x() const {
+    return GetField<double>(VT_X, 0.0);
+  }
+  /// y value
+  double y() const {
+    return GetField<double>(VT_Y, 0.0);
+  }
+  /// z value
+  double z() const {
+    return GetField<double>(VT_Z, 0.0);
+  }
+  /// w value
+  double w() const {
+    return GetField<double>(VT_W, 1.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
+           VerifyField<double>(verifier, VT_Z, 8) &&
+           VerifyField<double>(verifier, VT_W, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct QuaternionBuilder {
+  typedef Quaternion Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(double x) {
+    fbb_.AddElement<double>(Quaternion::VT_X, x, 0.0);
+  }
+  void add_y(double y) {
+    fbb_.AddElement<double>(Quaternion::VT_Y, y, 0.0);
+  }
+  void add_z(double z) {
+    fbb_.AddElement<double>(Quaternion::VT_Z, z, 0.0);
+  }
+  void add_w(double w) {
+    fbb_.AddElement<double>(Quaternion::VT_W, w, 1.0);
+  }
+  explicit QuaternionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Quaternion> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Quaternion>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Quaternion> CreateQuaternion(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double x = 0.0,
+    double y = 0.0,
+    double z = 0.0,
+    double w = 1.0) {
+  QuaternionBuilder builder_(_fbb);
+  builder_.add_w(w);
+  builder_.add_z(z);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  return builder_.Finish();
+}
+
+/// A vector in 3D space that represents a direction only
+struct Vector3 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef Vector3Builder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return Vector3TypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6,
+    VT_Z = 8
+  };
+  /// x coordinate length
+  double x() const {
+    return GetField<double>(VT_X, 1.0);
+  }
+  /// y coordinate length
+  double y() const {
+    return GetField<double>(VT_Y, 1.0);
+  }
+  /// z coordinate length
+  double z() const {
+    return GetField<double>(VT_Z, 1.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
+           VerifyField<double>(verifier, VT_Z, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct Vector3Builder {
+  typedef Vector3 Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(double x) {
+    fbb_.AddElement<double>(Vector3::VT_X, x, 1.0);
+  }
+  void add_y(double y) {
+    fbb_.AddElement<double>(Vector3::VT_Y, y, 1.0);
+  }
+  void add_z(double z) {
+    fbb_.AddElement<double>(Vector3::VT_Z, z, 1.0);
+  }
+  explicit Vector3Builder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Vector3> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Vector3>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Vector3> CreateVector3(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double x = 1.0,
+    double y = 1.0,
+    double z = 1.0) {
+  Vector3Builder builder_(_fbb);
+  builder_.add_z(z);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  return builder_.Finish();
+}
+
+/// A position and orientation for an object or reference frame in 3D space
+struct Pose FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PoseBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return PoseTypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_POSITION = 4,
+    VT_ORIENTATION = 6
+  };
+  /// Point denoting position in 3D space
+  const foxglove::Vector3 *position() const {
+    return GetPointer<const foxglove::Vector3 *>(VT_POSITION);
+  }
+  /// Quaternion denoting orientation in 3D space
+  const foxglove::Quaternion *orientation() const {
+    return GetPointer<const foxglove::Quaternion *>(VT_ORIENTATION);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_POSITION) &&
+           verifier.VerifyTable(position()) &&
+           VerifyOffset(verifier, VT_ORIENTATION) &&
+           verifier.VerifyTable(orientation()) &&
+           verifier.EndTable();
+  }
+};
+
+struct PoseBuilder {
+  typedef Pose Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_position(::flatbuffers::Offset<foxglove::Vector3> position) {
+    fbb_.AddOffset(Pose::VT_POSITION, position);
+  }
+  void add_orientation(::flatbuffers::Offset<foxglove::Quaternion> orientation) {
+    fbb_.AddOffset(Pose::VT_ORIENTATION, orientation);
+  }
+  explicit PoseBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Pose> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Pose>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Pose> CreatePose(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<foxglove::Vector3> position = 0,
+    ::flatbuffers::Offset<foxglove::Quaternion> orientation = 0) {
+  PoseBuilder builder_(_fbb);
+  builder_.add_orientation(orientation);
+  builder_.add_position(position);
+  return builder_.Finish();
+}
 
 /// A primitive representing a set of triangles or a surface tiled by triangles
-struct TriangleListPrimitive FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct TriangleListPrimitive FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef TriangleListPrimitiveBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return TriangleListPrimitiveTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_POSE = 4,
     VT_POINTS = 6,
@@ -26,28 +412,28 @@ struct TriangleListPrimitive FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tabl
     VT_INDICES = 12
   };
   /// Origin of triangles relative to reference frame
-  const Pose *pose() const {
-    return GetPointer<const Pose *>(VT_POSE);
+  const foxglove::Pose *pose() const {
+    return GetPointer<const foxglove::Pose *>(VT_POSE);
   }
   /// Vertices to use for triangles, interpreted as a list of triples (0-1-2, 3-4-5, ...)
-  const flatbuffers::Vector<flatbuffers::Offset<Point3>> *points() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Point3>> *>(VT_POINTS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<foxglove::Point3>> *points() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<foxglove::Point3>> *>(VT_POINTS);
   }
   /// Solid color to use for the whole shape. One of `color` or `colors` must be provided.
-  const Color *color() const {
-    return GetPointer<const Color *>(VT_COLOR);
+  const foxglove::Color *color() const {
+    return GetPointer<const foxglove::Color *>(VT_COLOR);
   }
   /// Per-vertex colors (if specified, must have the same length as `points`). One of `color` or `colors` must be provided.
-  const flatbuffers::Vector<flatbuffers::Offset<Color>> *colors() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Color>> *>(VT_COLORS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<foxglove::Color>> *colors() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<foxglove::Color>> *>(VT_COLORS);
   }
   /// Indices into the `points` and `colors` attribute arrays, which can be used to avoid duplicating attribute data.
   /// 
   /// If omitted or empty, indexing will not be used. This default behavior is equivalent to specifying [0, 1, ..., N-1] for the indices (where N is the number of `points` provided).
-  const flatbuffers::Vector<uint32_t> *indices() const {
-    return GetPointer<const flatbuffers::Vector<uint32_t> *>(VT_INDICES);
+  const ::flatbuffers::Vector<uint32_t> *indices() const {
+    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_INDICES);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_POSE) &&
            verifier.VerifyTable(pose()) &&
@@ -66,42 +452,42 @@ struct TriangleListPrimitive FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tabl
 };
 
 struct TriangleListPrimitiveBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_pose(flatbuffers::Offset<Pose> pose) {
+  typedef TriangleListPrimitive Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_pose(::flatbuffers::Offset<foxglove::Pose> pose) {
     fbb_.AddOffset(TriangleListPrimitive::VT_POSE, pose);
   }
-  void add_points(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Point3>>> points) {
+  void add_points(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<foxglove::Point3>>> points) {
     fbb_.AddOffset(TriangleListPrimitive::VT_POINTS, points);
   }
-  void add_color(flatbuffers::Offset<Color> color) {
+  void add_color(::flatbuffers::Offset<foxglove::Color> color) {
     fbb_.AddOffset(TriangleListPrimitive::VT_COLOR, color);
   }
-  void add_colors(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Color>>> colors) {
+  void add_colors(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<foxglove::Color>>> colors) {
     fbb_.AddOffset(TriangleListPrimitive::VT_COLORS, colors);
   }
-  void add_indices(flatbuffers::Offset<flatbuffers::Vector<uint32_t>> indices) {
+  void add_indices(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> indices) {
     fbb_.AddOffset(TriangleListPrimitive::VT_INDICES, indices);
   }
-  explicit TriangleListPrimitiveBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit TriangleListPrimitiveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  TriangleListPrimitiveBuilder &operator=(const TriangleListPrimitiveBuilder &);
-  flatbuffers::Offset<TriangleListPrimitive> Finish() {
+  ::flatbuffers::Offset<TriangleListPrimitive> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<TriangleListPrimitive>(end);
+    auto o = ::flatbuffers::Offset<TriangleListPrimitive>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<TriangleListPrimitive> CreateTriangleListPrimitive(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<Pose> pose = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Point3>>> points = 0,
-    flatbuffers::Offset<Color> color = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Color>>> colors = 0,
-    flatbuffers::Offset<flatbuffers::Vector<uint32_t>> indices = 0) {
+inline ::flatbuffers::Offset<TriangleListPrimitive> CreateTriangleListPrimitive(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<foxglove::Pose> pose = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<foxglove::Point3>>> points = 0,
+    ::flatbuffers::Offset<foxglove::Color> color = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<foxglove::Color>>> colors = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> indices = 0) {
   TriangleListPrimitiveBuilder builder_(_fbb);
   builder_.add_indices(indices);
   builder_.add_colors(colors);
@@ -111,15 +497,15 @@ inline flatbuffers::Offset<TriangleListPrimitive> CreateTriangleListPrimitive(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<TriangleListPrimitive> CreateTriangleListPrimitiveDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<Pose> pose = 0,
-    const std::vector<flatbuffers::Offset<Point3>> *points = nullptr,
-    flatbuffers::Offset<Color> color = 0,
-    const std::vector<flatbuffers::Offset<Color>> *colors = nullptr,
+inline ::flatbuffers::Offset<TriangleListPrimitive> CreateTriangleListPrimitiveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<foxglove::Pose> pose = 0,
+    const std::vector<::flatbuffers::Offset<foxglove::Point3>> *points = nullptr,
+    ::flatbuffers::Offset<foxglove::Color> color = 0,
+    const std::vector<::flatbuffers::Offset<foxglove::Color>> *colors = nullptr,
     const std::vector<uint32_t> *indices = nullptr) {
-  auto points__ = points ? _fbb.CreateVector<flatbuffers::Offset<Point3>>(*points) : 0;
-  auto colors__ = colors ? _fbb.CreateVector<flatbuffers::Offset<Color>>(*colors) : 0;
+  auto points__ = points ? _fbb.CreateVector<::flatbuffers::Offset<foxglove::Point3>>(*points) : 0;
+  auto colors__ = colors ? _fbb.CreateVector<::flatbuffers::Offset<foxglove::Color>>(*colors) : 0;
   auto indices__ = indices ? _fbb.CreateVector<uint32_t>(*indices) : 0;
   return foxglove::CreateTriangleListPrimitive(
       _fbb,
@@ -130,33 +516,150 @@ inline flatbuffers::Offset<TriangleListPrimitive> CreateTriangleListPrimitiveDir
       indices__);
 }
 
+inline const ::flatbuffers::TypeTable *ColorTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "r",
+    "g",
+    "b",
+    "a"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 4, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *Point3TypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y",
+    "z"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 3, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *QuaternionTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y",
+    "z",
+    "w"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 4, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *Vector3TypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y",
+    "z"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 3, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *PoseTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_SEQUENCE, 0, 0 },
+    { ::flatbuffers::ET_SEQUENCE, 0, 1 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::Vector3TypeTable,
+    foxglove::QuaternionTypeTable
+  };
+  static const char * const names[] = {
+    "position",
+    "orientation"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 2, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *TriangleListPrimitiveTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_SEQUENCE, 0, 0 },
+    { ::flatbuffers::ET_SEQUENCE, 1, 1 },
+    { ::flatbuffers::ET_SEQUENCE, 0, 2 },
+    { ::flatbuffers::ET_SEQUENCE, 1, 2 },
+    { ::flatbuffers::ET_UINT, 1, -1 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::PoseTypeTable,
+    foxglove::Point3TypeTable,
+    foxglove::ColorTypeTable
+  };
+  static const char * const names[] = {
+    "pose",
+    "points",
+    "color",
+    "colors",
+    "indices"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 5, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::TriangleListPrimitive *GetTriangleListPrimitive(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::TriangleListPrimitive>(buf);
+  return ::flatbuffers::GetRoot<foxglove::TriangleListPrimitive>(buf);
 }
 
 inline const foxglove::TriangleListPrimitive *GetSizePrefixedTriangleListPrimitive(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::TriangleListPrimitive>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::TriangleListPrimitive>(buf);
 }
 
 inline bool VerifyTriangleListPrimitiveBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::TriangleListPrimitive>(nullptr);
 }
 
 inline bool VerifySizePrefixedTriangleListPrimitiveBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::TriangleListPrimitive>(nullptr);
 }
 
 inline void FinishTriangleListPrimitiveBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::TriangleListPrimitive> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::TriangleListPrimitive> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedTriangleListPrimitiveBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::TriangleListPrimitive> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::TriangleListPrimitive> root) {
   fbb.FinishSizePrefixed(root);
 }
 

@@ -6,25 +6,340 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-#include "FrameTransform_generated.h"
-#include "Quaternion_generated.h"
-#include "Time_generated.h"
-#include "Vector3_generated.h"
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
 
 namespace foxglove {
 
+struct Quaternion;
+struct QuaternionBuilder;
+
+struct Time;
+
+struct Vector3;
+struct Vector3Builder;
+
+struct FrameTransform;
+struct FrameTransformBuilder;
+
 struct FrameTransforms;
+struct FrameTransformsBuilder;
+
+inline const ::flatbuffers::TypeTable *QuaternionTypeTable();
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable();
+
+inline const ::flatbuffers::TypeTable *Vector3TypeTable();
+
+inline const ::flatbuffers::TypeTable *FrameTransformTypeTable();
+
+inline const ::flatbuffers::TypeTable *FrameTransformsTypeTable();
+
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Time FLATBUFFERS_FINAL_CLASS {
+ private:
+  uint32_t sec_;
+  uint32_t nsec_;
+
+ public:
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return TimeTypeTable();
+  }
+  Time()
+      : sec_(0),
+        nsec_(0) {
+  }
+  Time(uint32_t _sec, uint32_t _nsec)
+      : sec_(::flatbuffers::EndianScalar(_sec)),
+        nsec_(::flatbuffers::EndianScalar(_nsec)) {
+  }
+  /// Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z
+  uint32_t sec() const {
+    return ::flatbuffers::EndianScalar(sec_);
+  }
+  /// Nano-second fractions from 0 to 999,999,999 inclusive
+  uint32_t nsec() const {
+    return ::flatbuffers::EndianScalar(nsec_);
+  }
+};
+FLATBUFFERS_STRUCT_END(Time, 8);
+
+/// A [quaternion](https://eater.net/quaternions) representing a rotation in 3D space
+struct Quaternion FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef QuaternionBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return QuaternionTypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6,
+    VT_Z = 8,
+    VT_W = 10
+  };
+  /// x value
+  double x() const {
+    return GetField<double>(VT_X, 0.0);
+  }
+  /// y value
+  double y() const {
+    return GetField<double>(VT_Y, 0.0);
+  }
+  /// z value
+  double z() const {
+    return GetField<double>(VT_Z, 0.0);
+  }
+  /// w value
+  double w() const {
+    return GetField<double>(VT_W, 1.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
+           VerifyField<double>(verifier, VT_Z, 8) &&
+           VerifyField<double>(verifier, VT_W, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct QuaternionBuilder {
+  typedef Quaternion Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(double x) {
+    fbb_.AddElement<double>(Quaternion::VT_X, x, 0.0);
+  }
+  void add_y(double y) {
+    fbb_.AddElement<double>(Quaternion::VT_Y, y, 0.0);
+  }
+  void add_z(double z) {
+    fbb_.AddElement<double>(Quaternion::VT_Z, z, 0.0);
+  }
+  void add_w(double w) {
+    fbb_.AddElement<double>(Quaternion::VT_W, w, 1.0);
+  }
+  explicit QuaternionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Quaternion> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Quaternion>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Quaternion> CreateQuaternion(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double x = 0.0,
+    double y = 0.0,
+    double z = 0.0,
+    double w = 1.0) {
+  QuaternionBuilder builder_(_fbb);
+  builder_.add_w(w);
+  builder_.add_z(z);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  return builder_.Finish();
+}
+
+/// A vector in 3D space that represents a direction only
+struct Vector3 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef Vector3Builder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return Vector3TypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6,
+    VT_Z = 8
+  };
+  /// x coordinate length
+  double x() const {
+    return GetField<double>(VT_X, 1.0);
+  }
+  /// y coordinate length
+  double y() const {
+    return GetField<double>(VT_Y, 1.0);
+  }
+  /// z coordinate length
+  double z() const {
+    return GetField<double>(VT_Z, 1.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
+           VerifyField<double>(verifier, VT_Z, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct Vector3Builder {
+  typedef Vector3 Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(double x) {
+    fbb_.AddElement<double>(Vector3::VT_X, x, 1.0);
+  }
+  void add_y(double y) {
+    fbb_.AddElement<double>(Vector3::VT_Y, y, 1.0);
+  }
+  void add_z(double z) {
+    fbb_.AddElement<double>(Vector3::VT_Z, z, 1.0);
+  }
+  explicit Vector3Builder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Vector3> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Vector3>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Vector3> CreateVector3(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double x = 1.0,
+    double y = 1.0,
+    double z = 1.0) {
+  Vector3Builder builder_(_fbb);
+  builder_.add_z(z);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  return builder_.Finish();
+}
+
+/// A transform between two reference frames in 3D space
+struct FrameTransform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FrameTransformBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return FrameTransformTypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_TIMESTAMP = 4,
+    VT_PARENT_FRAME_ID = 6,
+    VT_CHILD_FRAME_ID = 8,
+    VT_TRANSLATION = 10,
+    VT_ROTATION = 12
+  };
+  /// Timestamp of transform
+  const foxglove::Time *timestamp() const {
+    return GetStruct<const foxglove::Time *>(VT_TIMESTAMP);
+  }
+  /// Name of the parent frame
+  const ::flatbuffers::String *parent_frame_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PARENT_FRAME_ID);
+  }
+  /// Name of the child frame
+  const ::flatbuffers::String *child_frame_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_CHILD_FRAME_ID);
+  }
+  /// Translation component of the transform
+  const foxglove::Vector3 *translation() const {
+    return GetPointer<const foxglove::Vector3 *>(VT_TRANSLATION);
+  }
+  /// Rotation component of the transform
+  const foxglove::Quaternion *rotation() const {
+    return GetPointer<const foxglove::Quaternion *>(VT_ROTATION);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<foxglove::Time>(verifier, VT_TIMESTAMP, 4) &&
+           VerifyOffset(verifier, VT_PARENT_FRAME_ID) &&
+           verifier.VerifyString(parent_frame_id()) &&
+           VerifyOffset(verifier, VT_CHILD_FRAME_ID) &&
+           verifier.VerifyString(child_frame_id()) &&
+           VerifyOffset(verifier, VT_TRANSLATION) &&
+           verifier.VerifyTable(translation()) &&
+           VerifyOffset(verifier, VT_ROTATION) &&
+           verifier.VerifyTable(rotation()) &&
+           verifier.EndTable();
+  }
+};
+
+struct FrameTransformBuilder {
+  typedef FrameTransform Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_timestamp(const foxglove::Time *timestamp) {
+    fbb_.AddStruct(FrameTransform::VT_TIMESTAMP, timestamp);
+  }
+  void add_parent_frame_id(::flatbuffers::Offset<::flatbuffers::String> parent_frame_id) {
+    fbb_.AddOffset(FrameTransform::VT_PARENT_FRAME_ID, parent_frame_id);
+  }
+  void add_child_frame_id(::flatbuffers::Offset<::flatbuffers::String> child_frame_id) {
+    fbb_.AddOffset(FrameTransform::VT_CHILD_FRAME_ID, child_frame_id);
+  }
+  void add_translation(::flatbuffers::Offset<foxglove::Vector3> translation) {
+    fbb_.AddOffset(FrameTransform::VT_TRANSLATION, translation);
+  }
+  void add_rotation(::flatbuffers::Offset<foxglove::Quaternion> rotation) {
+    fbb_.AddOffset(FrameTransform::VT_ROTATION, rotation);
+  }
+  explicit FrameTransformBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<FrameTransform> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<FrameTransform>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<FrameTransform> CreateFrameTransform(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
+    ::flatbuffers::Offset<::flatbuffers::String> parent_frame_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> child_frame_id = 0,
+    ::flatbuffers::Offset<foxglove::Vector3> translation = 0,
+    ::flatbuffers::Offset<foxglove::Quaternion> rotation = 0) {
+  FrameTransformBuilder builder_(_fbb);
+  builder_.add_rotation(rotation);
+  builder_.add_translation(translation);
+  builder_.add_child_frame_id(child_frame_id);
+  builder_.add_parent_frame_id(parent_frame_id);
+  builder_.add_timestamp(timestamp);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<FrameTransform> CreateFrameTransformDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
+    const char *parent_frame_id = nullptr,
+    const char *child_frame_id = nullptr,
+    ::flatbuffers::Offset<foxglove::Vector3> translation = 0,
+    ::flatbuffers::Offset<foxglove::Quaternion> rotation = 0) {
+  auto parent_frame_id__ = parent_frame_id ? _fbb.CreateString(parent_frame_id) : 0;
+  auto child_frame_id__ = child_frame_id ? _fbb.CreateString(child_frame_id) : 0;
+  return foxglove::CreateFrameTransform(
+      _fbb,
+      timestamp,
+      parent_frame_id__,
+      child_frame_id__,
+      translation,
+      rotation);
+}
 
 /// An array of FrameTransform messages
-struct FrameTransforms FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct FrameTransforms FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FrameTransformsBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return FrameTransformsTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TRANSFORMS = 4
   };
   /// Array of transforms
-  const flatbuffers::Vector<flatbuffers::Offset<FrameTransform>> *transforms() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<FrameTransform>> *>(VT_TRANSFORMS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<foxglove::FrameTransform>> *transforms() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<foxglove::FrameTransform>> *>(VT_TRANSFORMS);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_TRANSFORMS) &&
            verifier.VerifyVector(transforms()) &&
@@ -34,67 +349,161 @@ struct FrameTransforms FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct FrameTransformsBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_transforms(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<FrameTransform>>> transforms) {
+  typedef FrameTransforms Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_transforms(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<foxglove::FrameTransform>>> transforms) {
     fbb_.AddOffset(FrameTransforms::VT_TRANSFORMS, transforms);
   }
-  explicit FrameTransformsBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit FrameTransformsBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  FrameTransformsBuilder &operator=(const FrameTransformsBuilder &);
-  flatbuffers::Offset<FrameTransforms> Finish() {
+  ::flatbuffers::Offset<FrameTransforms> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<FrameTransforms>(end);
+    auto o = ::flatbuffers::Offset<FrameTransforms>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<FrameTransforms> CreateFrameTransforms(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<FrameTransform>>> transforms = 0) {
+inline ::flatbuffers::Offset<FrameTransforms> CreateFrameTransforms(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<foxglove::FrameTransform>>> transforms = 0) {
   FrameTransformsBuilder builder_(_fbb);
   builder_.add_transforms(transforms);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<FrameTransforms> CreateFrameTransformsDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatbuffers::Offset<FrameTransform>> *transforms = nullptr) {
-  auto transforms__ = transforms ? _fbb.CreateVector<flatbuffers::Offset<FrameTransform>>(*transforms) : 0;
+inline ::flatbuffers::Offset<FrameTransforms> CreateFrameTransformsDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<foxglove::FrameTransform>> *transforms = nullptr) {
+  auto transforms__ = transforms ? _fbb.CreateVector<::flatbuffers::Offset<foxglove::FrameTransform>>(*transforms) : 0;
   return foxglove::CreateFrameTransforms(
       _fbb,
       transforms__);
 }
 
+inline const ::flatbuffers::TypeTable *QuaternionTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y",
+    "z",
+    "w"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 4, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 }
+  };
+  static const int64_t values[] = { 0, 4, 8 };
+  static const char * const names[] = {
+    "sec",
+    "nsec"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_STRUCT, 2, type_codes, nullptr, nullptr, values, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *Vector3TypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y",
+    "z"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 3, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *FrameTransformTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_SEQUENCE, 0, 0 },
+    { ::flatbuffers::ET_STRING, 0, -1 },
+    { ::flatbuffers::ET_STRING, 0, -1 },
+    { ::flatbuffers::ET_SEQUENCE, 0, 1 },
+    { ::flatbuffers::ET_SEQUENCE, 0, 2 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::TimeTypeTable,
+    foxglove::Vector3TypeTable,
+    foxglove::QuaternionTypeTable
+  };
+  static const char * const names[] = {
+    "timestamp",
+    "parent_frame_id",
+    "child_frame_id",
+    "translation",
+    "rotation"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 5, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *FrameTransformsTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_SEQUENCE, 1, 0 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::FrameTransformTypeTable
+  };
+  static const char * const names[] = {
+    "transforms"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 1, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::FrameTransforms *GetFrameTransforms(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::FrameTransforms>(buf);
+  return ::flatbuffers::GetRoot<foxglove::FrameTransforms>(buf);
 }
 
 inline const foxglove::FrameTransforms *GetSizePrefixedFrameTransforms(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::FrameTransforms>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::FrameTransforms>(buf);
 }
 
 inline bool VerifyFrameTransformsBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::FrameTransforms>(nullptr);
 }
 
 inline bool VerifySizePrefixedFrameTransformsBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::FrameTransforms>(nullptr);
 }
 
 inline void FinishFrameTransformsBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::FrameTransforms> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::FrameTransforms> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedFrameTransformsBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::FrameTransforms> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::FrameTransforms> root) {
   fbb.FinishSizePrefixed(root);
 }
 

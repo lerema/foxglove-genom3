@@ -6,17 +6,29 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-#include "Time_generated.h"
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
 
 namespace foxglove {
 
+struct Time;
+
 struct SceneEntityDeletion;
+struct SceneEntityDeletionBuilder;
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable();
+
+inline const ::flatbuffers::TypeTable *SceneEntityDeletionTypeTable();
 
 /// An enumeration indicating which entities should match a SceneEntityDeletion command
-enum SceneEntityDeletionType {
+enum SceneEntityDeletionType : uint8_t {
   /// Delete the existing entity on the same topic that has the provided `id`
-  SceneEntityDeletionType_MATCHING_ID = 0  /// Delete all existing entities on the same topic
-,
+  SceneEntityDeletionType_MATCHING_ID = 0,
+  /// Delete all existing entities on the same topic
   SceneEntityDeletionType_ALL = 1,
   SceneEntityDeletionType_MIN = SceneEntityDeletionType_MATCHING_ID,
   SceneEntityDeletionType_MAX = SceneEntityDeletionType_ALL
@@ -31,7 +43,7 @@ inline const SceneEntityDeletionType (&EnumValuesSceneEntityDeletionType())[2] {
 }
 
 inline const char * const *EnumNamesSceneEntityDeletionType() {
-  static const char * const names[] = {
+  static const char * const names[3] = {
     "MATCHING_ID",
     "ALL",
     nullptr
@@ -40,34 +52,66 @@ inline const char * const *EnumNamesSceneEntityDeletionType() {
 }
 
 inline const char *EnumNameSceneEntityDeletionType(SceneEntityDeletionType e) {
-  if (e < SceneEntityDeletionType_MATCHING_ID || e > SceneEntityDeletionType_ALL) return "";
+  if (::flatbuffers::IsOutRange(e, SceneEntityDeletionType_MATCHING_ID, SceneEntityDeletionType_ALL)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesSceneEntityDeletionType()[index];
 }
 
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Time FLATBUFFERS_FINAL_CLASS {
+ private:
+  uint32_t sec_;
+  uint32_t nsec_;
+
+ public:
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return TimeTypeTable();
+  }
+  Time()
+      : sec_(0),
+        nsec_(0) {
+  }
+  Time(uint32_t _sec, uint32_t _nsec)
+      : sec_(::flatbuffers::EndianScalar(_sec)),
+        nsec_(::flatbuffers::EndianScalar(_nsec)) {
+  }
+  /// Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z
+  uint32_t sec() const {
+    return ::flatbuffers::EndianScalar(sec_);
+  }
+  /// Nano-second fractions from 0 to 999,999,999 inclusive
+  uint32_t nsec() const {
+    return ::flatbuffers::EndianScalar(nsec_);
+  }
+};
+FLATBUFFERS_STRUCT_END(Time, 8);
+
 /// Command to remove previously published entities
-struct SceneEntityDeletion FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct SceneEntityDeletion FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SceneEntityDeletionBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return SceneEntityDeletionTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIMESTAMP = 4,
     VT_TYPE = 6,
     VT_ID = 8
   };
   /// Timestamp of the deletion. Only matching entities earlier than this timestamp will be deleted.
-  const Time *timestamp() const {
-    return GetStruct<const Time *>(VT_TIMESTAMP);
+  const foxglove::Time *timestamp() const {
+    return GetStruct<const foxglove::Time *>(VT_TIMESTAMP);
   }
   /// Type of deletion action to perform
-  SceneEntityDeletionType type() const {
-    return static_cast<SceneEntityDeletionType>(GetField<uint8_t>(VT_TYPE, 0));
+  foxglove::SceneEntityDeletionType type() const {
+    return static_cast<foxglove::SceneEntityDeletionType>(GetField<uint8_t>(VT_TYPE, 0));
   }
   /// Identifier which must match if `type` is `MATCHING_ID`.
-  const flatbuffers::String *id() const {
-    return GetPointer<const flatbuffers::String *>(VT_ID);
+  const ::flatbuffers::String *id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_ID);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<Time>(verifier, VT_TIMESTAMP) &&
-           VerifyField<uint8_t>(verifier, VT_TYPE) &&
+           VerifyField<foxglove::Time>(verifier, VT_TIMESTAMP, 4) &&
+           VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
            VerifyOffset(verifier, VT_ID) &&
            verifier.VerifyString(id()) &&
            verifier.EndTable();
@@ -75,34 +119,34 @@ struct SceneEntityDeletion FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
 };
 
 struct SceneEntityDeletionBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_timestamp(const Time *timestamp) {
+  typedef SceneEntityDeletion Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_timestamp(const foxglove::Time *timestamp) {
     fbb_.AddStruct(SceneEntityDeletion::VT_TIMESTAMP, timestamp);
   }
-  void add_type(SceneEntityDeletionType type) {
+  void add_type(foxglove::SceneEntityDeletionType type) {
     fbb_.AddElement<uint8_t>(SceneEntityDeletion::VT_TYPE, static_cast<uint8_t>(type), 0);
   }
-  void add_id(flatbuffers::Offset<flatbuffers::String> id) {
+  void add_id(::flatbuffers::Offset<::flatbuffers::String> id) {
     fbb_.AddOffset(SceneEntityDeletion::VT_ID, id);
   }
-  explicit SceneEntityDeletionBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit SceneEntityDeletionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  SceneEntityDeletionBuilder &operator=(const SceneEntityDeletionBuilder &);
-  flatbuffers::Offset<SceneEntityDeletion> Finish() {
+  ::flatbuffers::Offset<SceneEntityDeletion> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<SceneEntityDeletion>(end);
+    auto o = ::flatbuffers::Offset<SceneEntityDeletion>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<SceneEntityDeletion> CreateSceneEntityDeletion(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const Time *timestamp = 0,
-    SceneEntityDeletionType type = SceneEntityDeletionType_MATCHING_ID,
-    flatbuffers::Offset<flatbuffers::String> id = 0) {
+inline ::flatbuffers::Offset<SceneEntityDeletion> CreateSceneEntityDeletion(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
+    foxglove::SceneEntityDeletionType type = foxglove::SceneEntityDeletionType_MATCHING_ID,
+    ::flatbuffers::Offset<::flatbuffers::String> id = 0) {
   SceneEntityDeletionBuilder builder_(_fbb);
   builder_.add_id(id);
   builder_.add_timestamp(timestamp);
@@ -110,10 +154,10 @@ inline flatbuffers::Offset<SceneEntityDeletion> CreateSceneEntityDeletion(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<SceneEntityDeletion> CreateSceneEntityDeletionDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const Time *timestamp = 0,
-    SceneEntityDeletionType type = SceneEntityDeletionType_MATCHING_ID,
+inline ::flatbuffers::Offset<SceneEntityDeletion> CreateSceneEntityDeletionDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
+    foxglove::SceneEntityDeletionType type = foxglove::SceneEntityDeletionType_MATCHING_ID,
     const char *id = nullptr) {
   auto id__ = id ? _fbb.CreateString(id) : 0;
   return foxglove::CreateSceneEntityDeletion(
@@ -123,33 +167,88 @@ inline flatbuffers::Offset<SceneEntityDeletion> CreateSceneEntityDeletionDirect(
       id__);
 }
 
+inline const ::flatbuffers::TypeTable *SceneEntityDeletionTypeTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::SceneEntityDeletionTypeTypeTable
+  };
+  static const char * const names[] = {
+    "MATCHING_ID",
+    "ALL"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_ENUM, 2, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 }
+  };
+  static const int64_t values[] = { 0, 4, 8 };
+  static const char * const names[] = {
+    "sec",
+    "nsec"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_STRUCT, 2, type_codes, nullptr, nullptr, values, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *SceneEntityDeletionTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_SEQUENCE, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 1 },
+    { ::flatbuffers::ET_STRING, 0, -1 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::TimeTypeTable,
+    foxglove::SceneEntityDeletionTypeTypeTable
+  };
+  static const char * const names[] = {
+    "timestamp",
+    "type",
+    "id"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 3, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::SceneEntityDeletion *GetSceneEntityDeletion(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::SceneEntityDeletion>(buf);
+  return ::flatbuffers::GetRoot<foxglove::SceneEntityDeletion>(buf);
 }
 
 inline const foxglove::SceneEntityDeletion *GetSizePrefixedSceneEntityDeletion(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::SceneEntityDeletion>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::SceneEntityDeletion>(buf);
 }
 
 inline bool VerifySceneEntityDeletionBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::SceneEntityDeletion>(nullptr);
 }
 
 inline bool VerifySizePrefixedSceneEntityDeletionBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::SceneEntityDeletion>(nullptr);
 }
 
 inline void FinishSceneEntityDeletionBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::SceneEntityDeletion> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::SceneEntityDeletion> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedSceneEntityDeletionBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::SceneEntityDeletion> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::SceneEntityDeletion> root) {
   fbb.FinishSizePrefixed(root);
 }
 

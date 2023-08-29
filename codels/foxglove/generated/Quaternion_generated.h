@@ -6,12 +6,26 @@
 
 #include "flatbuffers/flatbuffers.h"
 
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
+
 namespace foxglove {
 
 struct Quaternion;
+struct QuaternionBuilder;
+
+inline const ::flatbuffers::TypeTable *QuaternionTypeTable();
 
 /// A [quaternion](https://eater.net/quaternions) representing a rotation in 3D space
-struct Quaternion FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct Quaternion FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef QuaternionBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return QuaternionTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_X = 4,
     VT_Y = 6,
@@ -34,19 +48,20 @@ struct Quaternion FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   double w() const {
     return GetField<double>(VT_W, 1.0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<double>(verifier, VT_X) &&
-           VerifyField<double>(verifier, VT_Y) &&
-           VerifyField<double>(verifier, VT_Z) &&
-           VerifyField<double>(verifier, VT_W) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
+           VerifyField<double>(verifier, VT_Z, 8) &&
+           VerifyField<double>(verifier, VT_W, 8) &&
            verifier.EndTable();
   }
 };
 
 struct QuaternionBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  typedef Quaternion Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_x(double x) {
     fbb_.AddElement<double>(Quaternion::VT_X, x, 0.0);
   }
@@ -59,20 +74,19 @@ struct QuaternionBuilder {
   void add_w(double w) {
     fbb_.AddElement<double>(Quaternion::VT_W, w, 1.0);
   }
-  explicit QuaternionBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit QuaternionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  QuaternionBuilder &operator=(const QuaternionBuilder &);
-  flatbuffers::Offset<Quaternion> Finish() {
+  ::flatbuffers::Offset<Quaternion> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<Quaternion>(end);
+    auto o = ::flatbuffers::Offset<Quaternion>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<Quaternion> CreateQuaternion(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<Quaternion> CreateQuaternion(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     double x = 0.0,
     double y = 0.0,
     double z = 0.0,
@@ -85,33 +99,52 @@ inline flatbuffers::Offset<Quaternion> CreateQuaternion(
   return builder_.Finish();
 }
 
+inline const ::flatbuffers::TypeTable *QuaternionTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y",
+    "z",
+    "w"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 4, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::Quaternion *GetQuaternion(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::Quaternion>(buf);
+  return ::flatbuffers::GetRoot<foxglove::Quaternion>(buf);
 }
 
 inline const foxglove::Quaternion *GetSizePrefixedQuaternion(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::Quaternion>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::Quaternion>(buf);
 }
 
 inline bool VerifyQuaternionBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::Quaternion>(nullptr);
 }
 
 inline bool VerifySizePrefixedQuaternionBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::Quaternion>(nullptr);
 }
 
 inline void FinishQuaternionBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Quaternion> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Quaternion> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedQuaternionBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Quaternion> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Quaternion> root) {
   fbb.FinishSizePrefixed(root);
 }
 

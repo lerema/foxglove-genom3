@@ -6,28 +6,196 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-#include "Quaternion_generated.h"
-#include "Vector3_generated.h"
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
 
 namespace foxglove {
 
+struct Quaternion;
+struct QuaternionBuilder;
+
+struct Vector3;
+struct Vector3Builder;
+
 struct Pose;
+struct PoseBuilder;
+
+inline const ::flatbuffers::TypeTable *QuaternionTypeTable();
+
+inline const ::flatbuffers::TypeTable *Vector3TypeTable();
+
+inline const ::flatbuffers::TypeTable *PoseTypeTable();
+
+/// A [quaternion](https://eater.net/quaternions) representing a rotation in 3D space
+struct Quaternion FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef QuaternionBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return QuaternionTypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6,
+    VT_Z = 8,
+    VT_W = 10
+  };
+  /// x value
+  double x() const {
+    return GetField<double>(VT_X, 0.0);
+  }
+  /// y value
+  double y() const {
+    return GetField<double>(VT_Y, 0.0);
+  }
+  /// z value
+  double z() const {
+    return GetField<double>(VT_Z, 0.0);
+  }
+  /// w value
+  double w() const {
+    return GetField<double>(VT_W, 1.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
+           VerifyField<double>(verifier, VT_Z, 8) &&
+           VerifyField<double>(verifier, VT_W, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct QuaternionBuilder {
+  typedef Quaternion Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(double x) {
+    fbb_.AddElement<double>(Quaternion::VT_X, x, 0.0);
+  }
+  void add_y(double y) {
+    fbb_.AddElement<double>(Quaternion::VT_Y, y, 0.0);
+  }
+  void add_z(double z) {
+    fbb_.AddElement<double>(Quaternion::VT_Z, z, 0.0);
+  }
+  void add_w(double w) {
+    fbb_.AddElement<double>(Quaternion::VT_W, w, 1.0);
+  }
+  explicit QuaternionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Quaternion> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Quaternion>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Quaternion> CreateQuaternion(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double x = 0.0,
+    double y = 0.0,
+    double z = 0.0,
+    double w = 1.0) {
+  QuaternionBuilder builder_(_fbb);
+  builder_.add_w(w);
+  builder_.add_z(z);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  return builder_.Finish();
+}
+
+/// A vector in 3D space that represents a direction only
+struct Vector3 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef Vector3Builder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return Vector3TypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6,
+    VT_Z = 8
+  };
+  /// x coordinate length
+  double x() const {
+    return GetField<double>(VT_X, 1.0);
+  }
+  /// y coordinate length
+  double y() const {
+    return GetField<double>(VT_Y, 1.0);
+  }
+  /// z coordinate length
+  double z() const {
+    return GetField<double>(VT_Z, 1.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
+           VerifyField<double>(verifier, VT_Z, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct Vector3Builder {
+  typedef Vector3 Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(double x) {
+    fbb_.AddElement<double>(Vector3::VT_X, x, 1.0);
+  }
+  void add_y(double y) {
+    fbb_.AddElement<double>(Vector3::VT_Y, y, 1.0);
+  }
+  void add_z(double z) {
+    fbb_.AddElement<double>(Vector3::VT_Z, z, 1.0);
+  }
+  explicit Vector3Builder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Vector3> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Vector3>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Vector3> CreateVector3(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double x = 1.0,
+    double y = 1.0,
+    double z = 1.0) {
+  Vector3Builder builder_(_fbb);
+  builder_.add_z(z);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  return builder_.Finish();
+}
 
 /// A position and orientation for an object or reference frame in 3D space
-struct Pose FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct Pose FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PoseBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return PoseTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_POSITION = 4,
     VT_ORIENTATION = 6
   };
   /// Point denoting position in 3D space
-  const Vector3 *position() const {
-    return GetPointer<const Vector3 *>(VT_POSITION);
+  const foxglove::Vector3 *position() const {
+    return GetPointer<const foxglove::Vector3 *>(VT_POSITION);
   }
   /// Quaternion denoting orientation in 3D space
-  const Quaternion *orientation() const {
-    return GetPointer<const Quaternion *>(VT_ORIENTATION);
+  const foxglove::Quaternion *orientation() const {
+    return GetPointer<const foxglove::Quaternion *>(VT_ORIENTATION);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_POSITION) &&
            verifier.VerifyTable(position()) &&
@@ -38,63 +206,118 @@ struct Pose FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct PoseBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_position(flatbuffers::Offset<Vector3> position) {
+  typedef Pose Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_position(::flatbuffers::Offset<foxglove::Vector3> position) {
     fbb_.AddOffset(Pose::VT_POSITION, position);
   }
-  void add_orientation(flatbuffers::Offset<Quaternion> orientation) {
+  void add_orientation(::flatbuffers::Offset<foxglove::Quaternion> orientation) {
     fbb_.AddOffset(Pose::VT_ORIENTATION, orientation);
   }
-  explicit PoseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit PoseBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  PoseBuilder &operator=(const PoseBuilder &);
-  flatbuffers::Offset<Pose> Finish() {
+  ::flatbuffers::Offset<Pose> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<Pose>(end);
+    auto o = ::flatbuffers::Offset<Pose>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<Pose> CreatePose(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<Vector3> position = 0,
-    flatbuffers::Offset<Quaternion> orientation = 0) {
+inline ::flatbuffers::Offset<Pose> CreatePose(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<foxglove::Vector3> position = 0,
+    ::flatbuffers::Offset<foxglove::Quaternion> orientation = 0) {
   PoseBuilder builder_(_fbb);
   builder_.add_orientation(orientation);
   builder_.add_position(position);
   return builder_.Finish();
 }
 
+inline const ::flatbuffers::TypeTable *QuaternionTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y",
+    "z",
+    "w"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 4, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *Vector3TypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y",
+    "z"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 3, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *PoseTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_SEQUENCE, 0, 0 },
+    { ::flatbuffers::ET_SEQUENCE, 0, 1 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::Vector3TypeTable,
+    foxglove::QuaternionTypeTable
+  };
+  static const char * const names[] = {
+    "position",
+    "orientation"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 2, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::Pose *GetPose(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::Pose>(buf);
+  return ::flatbuffers::GetRoot<foxglove::Pose>(buf);
 }
 
 inline const foxglove::Pose *GetSizePrefixedPose(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::Pose>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::Pose>(buf);
 }
 
 inline bool VerifyPoseBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::Pose>(nullptr);
 }
 
 inline bool VerifySizePrefixedPoseBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::Pose>(nullptr);
 }
 
 inline void FinishPoseBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Pose> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Pose> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedPoseBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Pose> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Pose> root) {
   fbb.FinishSizePrefixed(root);
 }
 

@@ -6,14 +6,26 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-#include "Time_generated.h"
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
 
 namespace foxglove {
 
+struct Time;
+
 struct Log;
+struct LogBuilder;
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable();
+
+inline const ::flatbuffers::TypeTable *LogTypeTable();
 
 /// Log level
-enum LogLevel {
+enum LogLevel : uint8_t {
   LogLevel_UNKNOWN = 0,
   LogLevel_DEBUG = 1,
   LogLevel_INFO = 2,
@@ -37,7 +49,7 @@ inline const LogLevel (&EnumValuesLogLevel())[6] {
 }
 
 inline const char * const *EnumNamesLogLevel() {
-  static const char * const names[] = {
+  static const char * const names[7] = {
     "UNKNOWN",
     "DEBUG",
     "INFO",
@@ -50,13 +62,45 @@ inline const char * const *EnumNamesLogLevel() {
 }
 
 inline const char *EnumNameLogLevel(LogLevel e) {
-  if (e < LogLevel_UNKNOWN || e > LogLevel_FATAL) return "";
+  if (::flatbuffers::IsOutRange(e, LogLevel_UNKNOWN, LogLevel_FATAL)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesLogLevel()[index];
 }
 
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Time FLATBUFFERS_FINAL_CLASS {
+ private:
+  uint32_t sec_;
+  uint32_t nsec_;
+
+ public:
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return TimeTypeTable();
+  }
+  Time()
+      : sec_(0),
+        nsec_(0) {
+  }
+  Time(uint32_t _sec, uint32_t _nsec)
+      : sec_(::flatbuffers::EndianScalar(_sec)),
+        nsec_(::flatbuffers::EndianScalar(_nsec)) {
+  }
+  /// Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z
+  uint32_t sec() const {
+    return ::flatbuffers::EndianScalar(sec_);
+  }
+  /// Nano-second fractions from 0 to 999,999,999 inclusive
+  uint32_t nsec() const {
+    return ::flatbuffers::EndianScalar(nsec_);
+  }
+};
+FLATBUFFERS_STRUCT_END(Time, 8);
+
 /// A log message
-struct Log FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct Log FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef LogBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return LogTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIMESTAMP = 4,
     VT_LEVEL = 6,
@@ -66,84 +110,84 @@ struct Log FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_LINE = 14
   };
   /// Timestamp of log message
-  const Time *timestamp() const {
-    return GetStruct<const Time *>(VT_TIMESTAMP);
+  const foxglove::Time *timestamp() const {
+    return GetStruct<const foxglove::Time *>(VT_TIMESTAMP);
   }
   /// Log level
-  LogLevel level() const {
-    return static_cast<LogLevel>(GetField<uint8_t>(VT_LEVEL, 0));
+  foxglove::LogLevel level() const {
+    return static_cast<foxglove::LogLevel>(GetField<uint8_t>(VT_LEVEL, 0));
   }
   /// Log message
-  const flatbuffers::String *message() const {
-    return GetPointer<const flatbuffers::String *>(VT_MESSAGE);
+  const ::flatbuffers::String *message() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_MESSAGE);
   }
   /// Process or node name
-  const flatbuffers::String *name() const {
-    return GetPointer<const flatbuffers::String *>(VT_NAME);
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
   }
   /// Filename
-  const flatbuffers::String *file() const {
-    return GetPointer<const flatbuffers::String *>(VT_FILE);
+  const ::flatbuffers::String *file() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FILE);
   }
   /// Line number in the file
   uint32_t line() const {
     return GetField<uint32_t>(VT_LINE, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<Time>(verifier, VT_TIMESTAMP) &&
-           VerifyField<uint8_t>(verifier, VT_LEVEL) &&
+           VerifyField<foxglove::Time>(verifier, VT_TIMESTAMP, 4) &&
+           VerifyField<uint8_t>(verifier, VT_LEVEL, 1) &&
            VerifyOffset(verifier, VT_MESSAGE) &&
            verifier.VerifyString(message()) &&
            VerifyOffset(verifier, VT_NAME) &&
            verifier.VerifyString(name()) &&
            VerifyOffset(verifier, VT_FILE) &&
            verifier.VerifyString(file()) &&
-           VerifyField<uint32_t>(verifier, VT_LINE) &&
+           VerifyField<uint32_t>(verifier, VT_LINE, 4) &&
            verifier.EndTable();
   }
 };
 
 struct LogBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_timestamp(const Time *timestamp) {
+  typedef Log Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_timestamp(const foxglove::Time *timestamp) {
     fbb_.AddStruct(Log::VT_TIMESTAMP, timestamp);
   }
-  void add_level(LogLevel level) {
+  void add_level(foxglove::LogLevel level) {
     fbb_.AddElement<uint8_t>(Log::VT_LEVEL, static_cast<uint8_t>(level), 0);
   }
-  void add_message(flatbuffers::Offset<flatbuffers::String> message) {
+  void add_message(::flatbuffers::Offset<::flatbuffers::String> message) {
     fbb_.AddOffset(Log::VT_MESSAGE, message);
   }
-  void add_name(flatbuffers::Offset<flatbuffers::String> name) {
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
     fbb_.AddOffset(Log::VT_NAME, name);
   }
-  void add_file(flatbuffers::Offset<flatbuffers::String> file) {
+  void add_file(::flatbuffers::Offset<::flatbuffers::String> file) {
     fbb_.AddOffset(Log::VT_FILE, file);
   }
   void add_line(uint32_t line) {
     fbb_.AddElement<uint32_t>(Log::VT_LINE, line, 0);
   }
-  explicit LogBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit LogBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  LogBuilder &operator=(const LogBuilder &);
-  flatbuffers::Offset<Log> Finish() {
+  ::flatbuffers::Offset<Log> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<Log>(end);
+    auto o = ::flatbuffers::Offset<Log>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<Log> CreateLog(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const Time *timestamp = 0,
-    LogLevel level = LogLevel_UNKNOWN,
-    flatbuffers::Offset<flatbuffers::String> message = 0,
-    flatbuffers::Offset<flatbuffers::String> name = 0,
-    flatbuffers::Offset<flatbuffers::String> file = 0,
+inline ::flatbuffers::Offset<Log> CreateLog(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
+    foxglove::LogLevel level = foxglove::LogLevel_UNKNOWN,
+    ::flatbuffers::Offset<::flatbuffers::String> message = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> file = 0,
     uint32_t line = 0) {
   LogBuilder builder_(_fbb);
   builder_.add_line(line);
@@ -155,10 +199,10 @@ inline flatbuffers::Offset<Log> CreateLog(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<Log> CreateLogDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const Time *timestamp = 0,
-    LogLevel level = LogLevel_UNKNOWN,
+inline ::flatbuffers::Offset<Log> CreateLogDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
+    foxglove::LogLevel level = foxglove::LogLevel_UNKNOWN,
     const char *message = nullptr,
     const char *name = nullptr,
     const char *file = nullptr,
@@ -176,33 +220,102 @@ inline flatbuffers::Offset<Log> CreateLogDirect(
       line);
 }
 
+inline const ::flatbuffers::TypeTable *LogLevelTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 0 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::LogLevelTypeTable
+  };
+  static const char * const names[] = {
+    "UNKNOWN",
+    "DEBUG",
+    "INFO",
+    "WARNING",
+    "ERROR",
+    "FATAL"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_ENUM, 6, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 }
+  };
+  static const int64_t values[] = { 0, 4, 8 };
+  static const char * const names[] = {
+    "sec",
+    "nsec"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_STRUCT, 2, type_codes, nullptr, nullptr, values, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *LogTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_SEQUENCE, 0, 0 },
+    { ::flatbuffers::ET_UCHAR, 0, 1 },
+    { ::flatbuffers::ET_STRING, 0, -1 },
+    { ::flatbuffers::ET_STRING, 0, -1 },
+    { ::flatbuffers::ET_STRING, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::TimeTypeTable,
+    foxglove::LogLevelTypeTable
+  };
+  static const char * const names[] = {
+    "timestamp",
+    "level",
+    "message",
+    "name",
+    "file",
+    "line"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 6, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::Log *GetLog(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::Log>(buf);
+  return ::flatbuffers::GetRoot<foxglove::Log>(buf);
 }
 
 inline const foxglove::Log *GetSizePrefixedLog(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::Log>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::Log>(buf);
 }
 
 inline bool VerifyLogBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::Log>(nullptr);
 }
 
 inline bool VerifySizePrefixedLogBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::Log>(nullptr);
 }
 
 inline void FinishLogBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Log> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Log> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedLogBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Log> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Log> root) {
   fbb.FinishSizePrefixed(root);
 }
 

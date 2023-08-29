@@ -6,12 +6,26 @@
 
 #include "flatbuffers/flatbuffers.h"
 
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
+
 namespace foxglove {
 
 struct Vector3;
+struct Vector3Builder;
+
+inline const ::flatbuffers::TypeTable *Vector3TypeTable();
 
 /// A vector in 3D space that represents a direction only
-struct Vector3 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct Vector3 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef Vector3Builder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return Vector3TypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_X = 4,
     VT_Y = 6,
@@ -29,18 +43,19 @@ struct Vector3 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   double z() const {
     return GetField<double>(VT_Z, 1.0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<double>(verifier, VT_X) &&
-           VerifyField<double>(verifier, VT_Y) &&
-           VerifyField<double>(verifier, VT_Z) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
+           VerifyField<double>(verifier, VT_Z, 8) &&
            verifier.EndTable();
   }
 };
 
 struct Vector3Builder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  typedef Vector3 Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_x(double x) {
     fbb_.AddElement<double>(Vector3::VT_X, x, 1.0);
   }
@@ -50,20 +65,19 @@ struct Vector3Builder {
   void add_z(double z) {
     fbb_.AddElement<double>(Vector3::VT_Z, z, 1.0);
   }
-  explicit Vector3Builder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit Vector3Builder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  Vector3Builder &operator=(const Vector3Builder &);
-  flatbuffers::Offset<Vector3> Finish() {
+  ::flatbuffers::Offset<Vector3> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<Vector3>(end);
+    auto o = ::flatbuffers::Offset<Vector3>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<Vector3> CreateVector3(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<Vector3> CreateVector3(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     double x = 1.0,
     double y = 1.0,
     double z = 1.0) {
@@ -74,33 +88,50 @@ inline flatbuffers::Offset<Vector3> CreateVector3(
   return builder_.Finish();
 }
 
+inline const ::flatbuffers::TypeTable *Vector3TypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y",
+    "z"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 3, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::Vector3 *GetVector3(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::Vector3>(buf);
+  return ::flatbuffers::GetRoot<foxglove::Vector3>(buf);
 }
 
 inline const foxglove::Vector3 *GetSizePrefixedVector3(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::Vector3>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::Vector3>(buf);
 }
 
 inline bool VerifyVector3Buffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::Vector3>(nullptr);
 }
 
 inline bool VerifySizePrefixedVector3Buffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::Vector3>(nullptr);
 }
 
 inline void FinishVector3Buffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Vector3> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Vector3> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedVector3Buffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::Vector3> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::Vector3> root) {
   fbb.FinishSizePrefixed(root);
 }
 

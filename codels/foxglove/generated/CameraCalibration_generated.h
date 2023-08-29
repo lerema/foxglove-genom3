@@ -6,14 +6,58 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-#include "Time_generated.h"
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
 
 namespace foxglove {
 
+struct Time;
+
 struct CameraCalibration;
+struct CameraCalibrationBuilder;
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable();
+
+inline const ::flatbuffers::TypeTable *CameraCalibrationTypeTable();
+
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Time FLATBUFFERS_FINAL_CLASS {
+ private:
+  uint32_t sec_;
+  uint32_t nsec_;
+
+ public:
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return TimeTypeTable();
+  }
+  Time()
+      : sec_(0),
+        nsec_(0) {
+  }
+  Time(uint32_t _sec, uint32_t _nsec)
+      : sec_(::flatbuffers::EndianScalar(_sec)),
+        nsec_(::flatbuffers::EndianScalar(_nsec)) {
+  }
+  /// Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z
+  uint32_t sec() const {
+    return ::flatbuffers::EndianScalar(sec_);
+  }
+  /// Nano-second fractions from 0 to 999,999,999 inclusive
+  uint32_t nsec() const {
+    return ::flatbuffers::EndianScalar(nsec_);
+  }
+};
+FLATBUFFERS_STRUCT_END(Time, 8);
 
 /// Camera calibration parameters
-struct CameraCalibration FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct CameraCalibration FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CameraCalibrationBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return CameraCalibrationTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIMESTAMP = 4,
     VT_FRAME_ID = 6,
@@ -26,12 +70,12 @@ struct CameraCalibration FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_P = 20
   };
   /// Timestamp of calibration data
-  const Time *timestamp() const {
-    return GetStruct<const Time *>(VT_TIMESTAMP);
+  const foxglove::Time *timestamp() const {
+    return GetStruct<const foxglove::Time *>(VT_TIMESTAMP);
   }
   /// Frame of reference for the camera. The origin of the frame is the optical center of the camera. +x points to the right in the image, +y points down, and +z points into the plane of the image.
-  const flatbuffers::String *frame_id() const {
-    return GetPointer<const flatbuffers::String *>(VT_FRAME_ID);
+  const ::flatbuffers::String *frame_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FRAME_ID);
   }
   /// Image width
   uint32_t width() const {
@@ -44,12 +88,12 @@ struct CameraCalibration FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   /// Name of distortion model
   /// 
   /// Supported values: `plumb_bob` and `rational_polynomial`
-  const flatbuffers::String *distortion_model() const {
-    return GetPointer<const flatbuffers::String *>(VT_DISTORTION_MODEL);
+  const ::flatbuffers::String *distortion_model() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_DISTORTION_MODEL);
   }
   /// Distortion parameters
-  const flatbuffers::Vector<double> *d() const {
-    return GetPointer<const flatbuffers::Vector<double> *>(VT_D);
+  const ::flatbuffers::Vector<double> *d() const {
+    return GetPointer<const ::flatbuffers::Vector<double> *>(VT_D);
   }
   /// Intrinsic camera matrix (3x3 row-major matrix)
   /// 
@@ -63,15 +107,15 @@ struct CameraCalibration FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   ///     [ 0  0  1]
   /// ```
   /// length 9
-  const flatbuffers::Vector<double> *k() const {
-    return GetPointer<const flatbuffers::Vector<double> *>(VT_K);
+  const ::flatbuffers::Vector<double> *k() const {
+    return GetPointer<const ::flatbuffers::Vector<double> *>(VT_K);
   }
   /// Rectification matrix (stereo cameras only, 3x3 row-major matrix)
   /// 
   /// A rotation matrix aligning the camera coordinate system to the ideal stereo image plane so that epipolar lines in both stereo images are parallel.
   /// length 9
-  const flatbuffers::Vector<double> *r() const {
-    return GetPointer<const flatbuffers::Vector<double> *>(VT_R);
+  const ::flatbuffers::Vector<double> *r() const {
+    return GetPointer<const ::flatbuffers::Vector<double> *>(VT_R);
   }
   /// Projection/camera matrix (3x4 row-major matrix)
   /// 
@@ -99,16 +143,16 @@ struct CameraCalibration FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   /// 
   /// This holds for both images of a stereo pair.
   /// length 12
-  const flatbuffers::Vector<double> *p() const {
-    return GetPointer<const flatbuffers::Vector<double> *>(VT_P);
+  const ::flatbuffers::Vector<double> *p() const {
+    return GetPointer<const ::flatbuffers::Vector<double> *>(VT_P);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<Time>(verifier, VT_TIMESTAMP) &&
+           VerifyField<foxglove::Time>(verifier, VT_TIMESTAMP, 4) &&
            VerifyOffset(verifier, VT_FRAME_ID) &&
            verifier.VerifyString(frame_id()) &&
-           VerifyField<uint32_t>(verifier, VT_WIDTH) &&
-           VerifyField<uint32_t>(verifier, VT_HEIGHT) &&
+           VerifyField<uint32_t>(verifier, VT_WIDTH, 4) &&
+           VerifyField<uint32_t>(verifier, VT_HEIGHT, 4) &&
            VerifyOffset(verifier, VT_DISTORTION_MODEL) &&
            verifier.VerifyString(distortion_model()) &&
            VerifyOffset(verifier, VT_D) &&
@@ -124,12 +168,13 @@ struct CameraCalibration FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct CameraCalibrationBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_timestamp(const Time *timestamp) {
+  typedef CameraCalibration Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_timestamp(const foxglove::Time *timestamp) {
     fbb_.AddStruct(CameraCalibration::VT_TIMESTAMP, timestamp);
   }
-  void add_frame_id(flatbuffers::Offset<flatbuffers::String> frame_id) {
+  void add_frame_id(::flatbuffers::Offset<::flatbuffers::String> frame_id) {
     fbb_.AddOffset(CameraCalibration::VT_FRAME_ID, frame_id);
   }
   void add_width(uint32_t width) {
@@ -138,44 +183,43 @@ struct CameraCalibrationBuilder {
   void add_height(uint32_t height) {
     fbb_.AddElement<uint32_t>(CameraCalibration::VT_HEIGHT, height, 0);
   }
-  void add_distortion_model(flatbuffers::Offset<flatbuffers::String> distortion_model) {
+  void add_distortion_model(::flatbuffers::Offset<::flatbuffers::String> distortion_model) {
     fbb_.AddOffset(CameraCalibration::VT_DISTORTION_MODEL, distortion_model);
   }
-  void add_d(flatbuffers::Offset<flatbuffers::Vector<double>> d) {
+  void add_d(::flatbuffers::Offset<::flatbuffers::Vector<double>> d) {
     fbb_.AddOffset(CameraCalibration::VT_D, d);
   }
-  void add_k(flatbuffers::Offset<flatbuffers::Vector<double>> k) {
+  void add_k(::flatbuffers::Offset<::flatbuffers::Vector<double>> k) {
     fbb_.AddOffset(CameraCalibration::VT_K, k);
   }
-  void add_r(flatbuffers::Offset<flatbuffers::Vector<double>> r) {
+  void add_r(::flatbuffers::Offset<::flatbuffers::Vector<double>> r) {
     fbb_.AddOffset(CameraCalibration::VT_R, r);
   }
-  void add_p(flatbuffers::Offset<flatbuffers::Vector<double>> p) {
+  void add_p(::flatbuffers::Offset<::flatbuffers::Vector<double>> p) {
     fbb_.AddOffset(CameraCalibration::VT_P, p);
   }
-  explicit CameraCalibrationBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit CameraCalibrationBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  CameraCalibrationBuilder &operator=(const CameraCalibrationBuilder &);
-  flatbuffers::Offset<CameraCalibration> Finish() {
+  ::flatbuffers::Offset<CameraCalibration> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<CameraCalibration>(end);
+    auto o = ::flatbuffers::Offset<CameraCalibration>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<CameraCalibration> CreateCameraCalibration(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const Time *timestamp = 0,
-    flatbuffers::Offset<flatbuffers::String> frame_id = 0,
+inline ::flatbuffers::Offset<CameraCalibration> CreateCameraCalibration(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
+    ::flatbuffers::Offset<::flatbuffers::String> frame_id = 0,
     uint32_t width = 0,
     uint32_t height = 0,
-    flatbuffers::Offset<flatbuffers::String> distortion_model = 0,
-    flatbuffers::Offset<flatbuffers::Vector<double>> d = 0,
-    flatbuffers::Offset<flatbuffers::Vector<double>> k = 0,
-    flatbuffers::Offset<flatbuffers::Vector<double>> r = 0,
-    flatbuffers::Offset<flatbuffers::Vector<double>> p = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> distortion_model = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<double>> d = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<double>> k = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<double>> r = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<double>> p = 0) {
   CameraCalibrationBuilder builder_(_fbb);
   builder_.add_p(p);
   builder_.add_r(r);
@@ -189,9 +233,9 @@ inline flatbuffers::Offset<CameraCalibration> CreateCameraCalibration(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<CameraCalibration> CreateCameraCalibrationDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const Time *timestamp = 0,
+inline ::flatbuffers::Offset<CameraCalibration> CreateCameraCalibrationDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
     const char *frame_id = nullptr,
     uint32_t width = 0,
     uint32_t height = 0,
@@ -219,33 +263,81 @@ inline flatbuffers::Offset<CameraCalibration> CreateCameraCalibrationDirect(
       p__);
 }
 
+inline const ::flatbuffers::TypeTable *TimeTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 }
+  };
+  static const int64_t values[] = { 0, 4, 8 };
+  static const char * const names[] = {
+    "sec",
+    "nsec"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_STRUCT, 2, type_codes, nullptr, nullptr, values, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *CameraCalibrationTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_SEQUENCE, 0, 0 },
+    { ::flatbuffers::ET_STRING, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_STRING, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 1, -1 },
+    { ::flatbuffers::ET_DOUBLE, 1, -1 },
+    { ::flatbuffers::ET_DOUBLE, 1, -1 },
+    { ::flatbuffers::ET_DOUBLE, 1, -1 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::TimeTypeTable
+  };
+  static const char * const names[] = {
+    "timestamp",
+    "frame_id",
+    "width",
+    "height",
+    "distortion_model",
+    "d",
+    "k",
+    "r",
+    "p"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 9, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::CameraCalibration *GetCameraCalibration(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::CameraCalibration>(buf);
+  return ::flatbuffers::GetRoot<foxglove::CameraCalibration>(buf);
 }
 
 inline const foxglove::CameraCalibration *GetSizePrefixedCameraCalibration(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::CameraCalibration>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::CameraCalibration>(buf);
 }
 
 inline bool VerifyCameraCalibrationBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::CameraCalibration>(nullptr);
 }
 
 inline bool VerifySizePrefixedCameraCalibrationBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::CameraCalibration>(nullptr);
 }
 
 inline void FinishCameraCalibrationBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::CameraCalibration> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::CameraCalibration> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedCameraCalibrationBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::CameraCalibration> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::CameraCalibration> root) {
   fbb.FinishSizePrefixed(root);
 }
 

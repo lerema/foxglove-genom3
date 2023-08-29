@@ -6,16 +6,204 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-#include "Color_generated.h"
-#include "Point2_generated.h"
-#include "Time_generated.h"
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
 
 namespace foxglove {
 
+struct Color;
+struct ColorBuilder;
+
+struct Point2;
+struct Point2Builder;
+
+struct Time;
+
 struct TextAnnotation;
+struct TextAnnotationBuilder;
+
+inline const ::flatbuffers::TypeTable *ColorTypeTable();
+
+inline const ::flatbuffers::TypeTable *Point2TypeTable();
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable();
+
+inline const ::flatbuffers::TypeTable *TextAnnotationTypeTable();
+
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Time FLATBUFFERS_FINAL_CLASS {
+ private:
+  uint32_t sec_;
+  uint32_t nsec_;
+
+ public:
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return TimeTypeTable();
+  }
+  Time()
+      : sec_(0),
+        nsec_(0) {
+  }
+  Time(uint32_t _sec, uint32_t _nsec)
+      : sec_(::flatbuffers::EndianScalar(_sec)),
+        nsec_(::flatbuffers::EndianScalar(_nsec)) {
+  }
+  /// Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z
+  uint32_t sec() const {
+    return ::flatbuffers::EndianScalar(sec_);
+  }
+  /// Nano-second fractions from 0 to 999,999,999 inclusive
+  uint32_t nsec() const {
+    return ::flatbuffers::EndianScalar(nsec_);
+  }
+};
+FLATBUFFERS_STRUCT_END(Time, 8);
+
+/// A color in RGBA format
+struct Color FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ColorBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return ColorTypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_R = 4,
+    VT_G = 6,
+    VT_B = 8,
+    VT_A = 10
+  };
+  /// Red value between 0 and 1
+  double r() const {
+    return GetField<double>(VT_R, 1.0);
+  }
+  /// Green value between 0 and 1
+  double g() const {
+    return GetField<double>(VT_G, 1.0);
+  }
+  /// Blue value between 0 and 1
+  double b() const {
+    return GetField<double>(VT_B, 1.0);
+  }
+  /// Alpha value between 0 and 1
+  double a() const {
+    return GetField<double>(VT_A, 1.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_R, 8) &&
+           VerifyField<double>(verifier, VT_G, 8) &&
+           VerifyField<double>(verifier, VT_B, 8) &&
+           VerifyField<double>(verifier, VT_A, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct ColorBuilder {
+  typedef Color Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_r(double r) {
+    fbb_.AddElement<double>(Color::VT_R, r, 1.0);
+  }
+  void add_g(double g) {
+    fbb_.AddElement<double>(Color::VT_G, g, 1.0);
+  }
+  void add_b(double b) {
+    fbb_.AddElement<double>(Color::VT_B, b, 1.0);
+  }
+  void add_a(double a) {
+    fbb_.AddElement<double>(Color::VT_A, a, 1.0);
+  }
+  explicit ColorBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Color> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Color>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Color> CreateColor(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double r = 1.0,
+    double g = 1.0,
+    double b = 1.0,
+    double a = 1.0) {
+  ColorBuilder builder_(_fbb);
+  builder_.add_a(a);
+  builder_.add_b(b);
+  builder_.add_g(g);
+  builder_.add_r(r);
+  return builder_.Finish();
+}
+
+/// A point representing a position in 2D space
+struct Point2 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef Point2Builder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return Point2TypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6
+  };
+  /// x coordinate position
+  double x() const {
+    return GetField<double>(VT_X, 0.0);
+  }
+  /// y coordinate position
+  double y() const {
+    return GetField<double>(VT_Y, 0.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct Point2Builder {
+  typedef Point2 Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(double x) {
+    fbb_.AddElement<double>(Point2::VT_X, x, 0.0);
+  }
+  void add_y(double y) {
+    fbb_.AddElement<double>(Point2::VT_Y, y, 0.0);
+  }
+  explicit Point2Builder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Point2> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Point2>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Point2> CreatePoint2(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double x = 0.0,
+    double y = 0.0) {
+  Point2Builder builder_(_fbb);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  return builder_.Finish();
+}
 
 /// A text label on a 2D image
-struct TextAnnotation FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct TextAnnotation FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef TextAnnotationBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return TextAnnotationTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIMESTAMP = 4,
     VT_POSITION = 6,
@@ -25,37 +213,37 @@ struct TextAnnotation FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_BACKGROUND_COLOR = 14
   };
   /// Timestamp of annotation
-  const Time *timestamp() const {
-    return GetStruct<const Time *>(VT_TIMESTAMP);
+  const foxglove::Time *timestamp() const {
+    return GetStruct<const foxglove::Time *>(VT_TIMESTAMP);
   }
   /// Bottom-left origin of the text label in 2D image coordinates (pixels)
-  const Point2 *position() const {
-    return GetPointer<const Point2 *>(VT_POSITION);
+  const foxglove::Point2 *position() const {
+    return GetPointer<const foxglove::Point2 *>(VT_POSITION);
   }
   /// Text to display
-  const flatbuffers::String *text() const {
-    return GetPointer<const flatbuffers::String *>(VT_TEXT);
+  const ::flatbuffers::String *text() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_TEXT);
   }
   /// Font size in pixels
   double font_size() const {
     return GetField<double>(VT_FONT_SIZE, 12.0);
   }
   /// Text color
-  const Color *text_color() const {
-    return GetPointer<const Color *>(VT_TEXT_COLOR);
+  const foxglove::Color *text_color() const {
+    return GetPointer<const foxglove::Color *>(VT_TEXT_COLOR);
   }
   /// Background fill color
-  const Color *background_color() const {
-    return GetPointer<const Color *>(VT_BACKGROUND_COLOR);
+  const foxglove::Color *background_color() const {
+    return GetPointer<const foxglove::Color *>(VT_BACKGROUND_COLOR);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<Time>(verifier, VT_TIMESTAMP) &&
+           VerifyField<foxglove::Time>(verifier, VT_TIMESTAMP, 4) &&
            VerifyOffset(verifier, VT_POSITION) &&
            verifier.VerifyTable(position()) &&
            VerifyOffset(verifier, VT_TEXT) &&
            verifier.VerifyString(text()) &&
-           VerifyField<double>(verifier, VT_FONT_SIZE) &&
+           VerifyField<double>(verifier, VT_FONT_SIZE, 8) &&
            VerifyOffset(verifier, VT_TEXT_COLOR) &&
            verifier.VerifyTable(text_color()) &&
            VerifyOffset(verifier, VT_BACKGROUND_COLOR) &&
@@ -65,46 +253,46 @@ struct TextAnnotation FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct TextAnnotationBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_timestamp(const Time *timestamp) {
+  typedef TextAnnotation Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_timestamp(const foxglove::Time *timestamp) {
     fbb_.AddStruct(TextAnnotation::VT_TIMESTAMP, timestamp);
   }
-  void add_position(flatbuffers::Offset<Point2> position) {
+  void add_position(::flatbuffers::Offset<foxglove::Point2> position) {
     fbb_.AddOffset(TextAnnotation::VT_POSITION, position);
   }
-  void add_text(flatbuffers::Offset<flatbuffers::String> text) {
+  void add_text(::flatbuffers::Offset<::flatbuffers::String> text) {
     fbb_.AddOffset(TextAnnotation::VT_TEXT, text);
   }
   void add_font_size(double font_size) {
     fbb_.AddElement<double>(TextAnnotation::VT_FONT_SIZE, font_size, 12.0);
   }
-  void add_text_color(flatbuffers::Offset<Color> text_color) {
+  void add_text_color(::flatbuffers::Offset<foxglove::Color> text_color) {
     fbb_.AddOffset(TextAnnotation::VT_TEXT_COLOR, text_color);
   }
-  void add_background_color(flatbuffers::Offset<Color> background_color) {
+  void add_background_color(::flatbuffers::Offset<foxglove::Color> background_color) {
     fbb_.AddOffset(TextAnnotation::VT_BACKGROUND_COLOR, background_color);
   }
-  explicit TextAnnotationBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit TextAnnotationBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  TextAnnotationBuilder &operator=(const TextAnnotationBuilder &);
-  flatbuffers::Offset<TextAnnotation> Finish() {
+  ::flatbuffers::Offset<TextAnnotation> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<TextAnnotation>(end);
+    auto o = ::flatbuffers::Offset<TextAnnotation>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<TextAnnotation> CreateTextAnnotation(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const Time *timestamp = 0,
-    flatbuffers::Offset<Point2> position = 0,
-    flatbuffers::Offset<flatbuffers::String> text = 0,
+inline ::flatbuffers::Offset<TextAnnotation> CreateTextAnnotation(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
+    ::flatbuffers::Offset<foxglove::Point2> position = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> text = 0,
     double font_size = 12.0,
-    flatbuffers::Offset<Color> text_color = 0,
-    flatbuffers::Offset<Color> background_color = 0) {
+    ::flatbuffers::Offset<foxglove::Color> text_color = 0,
+    ::flatbuffers::Offset<foxglove::Color> background_color = 0) {
   TextAnnotationBuilder builder_(_fbb);
   builder_.add_font_size(font_size);
   builder_.add_background_color(background_color);
@@ -115,14 +303,14 @@ inline flatbuffers::Offset<TextAnnotation> CreateTextAnnotation(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<TextAnnotation> CreateTextAnnotationDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const Time *timestamp = 0,
-    flatbuffers::Offset<Point2> position = 0,
+inline ::flatbuffers::Offset<TextAnnotation> CreateTextAnnotationDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
+    ::flatbuffers::Offset<foxglove::Point2> position = 0,
     const char *text = nullptr,
     double font_size = 12.0,
-    flatbuffers::Offset<Color> text_color = 0,
-    flatbuffers::Offset<Color> background_color = 0) {
+    ::flatbuffers::Offset<foxglove::Color> text_color = 0,
+    ::flatbuffers::Offset<foxglove::Color> background_color = 0) {
   auto text__ = text ? _fbb.CreateString(text) : 0;
   return foxglove::CreateTextAnnotation(
       _fbb,
@@ -134,33 +322,111 @@ inline flatbuffers::Offset<TextAnnotation> CreateTextAnnotationDirect(
       background_color);
 }
 
+inline const ::flatbuffers::TypeTable *ColorTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "r",
+    "g",
+    "b",
+    "a"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 4, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *Point2TypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 2, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 }
+  };
+  static const int64_t values[] = { 0, 4, 8 };
+  static const char * const names[] = {
+    "sec",
+    "nsec"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_STRUCT, 2, type_codes, nullptr, nullptr, values, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *TextAnnotationTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_SEQUENCE, 0, 0 },
+    { ::flatbuffers::ET_SEQUENCE, 0, 1 },
+    { ::flatbuffers::ET_STRING, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_SEQUENCE, 0, 2 },
+    { ::flatbuffers::ET_SEQUENCE, 0, 2 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::TimeTypeTable,
+    foxglove::Point2TypeTable,
+    foxglove::ColorTypeTable
+  };
+  static const char * const names[] = {
+    "timestamp",
+    "position",
+    "text",
+    "font_size",
+    "text_color",
+    "background_color"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 6, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::TextAnnotation *GetTextAnnotation(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::TextAnnotation>(buf);
+  return ::flatbuffers::GetRoot<foxglove::TextAnnotation>(buf);
 }
 
 inline const foxglove::TextAnnotation *GetSizePrefixedTextAnnotation(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::TextAnnotation>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::TextAnnotation>(buf);
 }
 
 inline bool VerifyTextAnnotationBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::TextAnnotation>(nullptr);
 }
 
 inline bool VerifySizePrefixedTextAnnotationBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::TextAnnotation>(nullptr);
 }
 
 inline void FinishTextAnnotationBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::TextAnnotation> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::TextAnnotation> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedTextAnnotationBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::TextAnnotation> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::TextAnnotation> root) {
   fbb.FinishSizePrefixed(root);
 }
 

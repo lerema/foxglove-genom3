@@ -6,14 +6,58 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-#include "Time_generated.h"
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
 
 namespace foxglove {
 
+struct Time;
+
 struct RawImage;
+struct RawImageBuilder;
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable();
+
+inline const ::flatbuffers::TypeTable *RawImageTypeTable();
+
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Time FLATBUFFERS_FINAL_CLASS {
+ private:
+  uint32_t sec_;
+  uint32_t nsec_;
+
+ public:
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return TimeTypeTable();
+  }
+  Time()
+      : sec_(0),
+        nsec_(0) {
+  }
+  Time(uint32_t _sec, uint32_t _nsec)
+      : sec_(::flatbuffers::EndianScalar(_sec)),
+        nsec_(::flatbuffers::EndianScalar(_nsec)) {
+  }
+  /// Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z
+  uint32_t sec() const {
+    return ::flatbuffers::EndianScalar(sec_);
+  }
+  /// Nano-second fractions from 0 to 999,999,999 inclusive
+  uint32_t nsec() const {
+    return ::flatbuffers::EndianScalar(nsec_);
+  }
+};
+FLATBUFFERS_STRUCT_END(Time, 8);
 
 /// A raw image
-struct RawImage FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct RawImage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef RawImageBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return RawImageTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIMESTAMP = 4,
     VT_FRAME_ID = 6,
@@ -24,12 +68,12 @@ struct RawImage FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_DATA = 16
   };
   /// Timestamp of image
-  const Time *timestamp() const {
-    return GetStruct<const Time *>(VT_TIMESTAMP);
+  const foxglove::Time *timestamp() const {
+    return GetStruct<const foxglove::Time *>(VT_TIMESTAMP);
   }
   /// Frame of reference for the image. The origin of the frame is the optical center of the camera. +x points to the right in the image, +y points down, and +z points into the plane of the image.
-  const flatbuffers::String *frame_id() const {
-    return GetPointer<const flatbuffers::String *>(VT_FRAME_ID);
+  const ::flatbuffers::String *frame_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FRAME_ID);
   }
   /// Image width
   uint32_t width() const {
@@ -42,27 +86,27 @@ struct RawImage FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   /// Encoding of the raw image data
   /// 
   /// Supported values: `8UC1`, `8UC3`, `16UC1`, `32FC1`, `bayer_bggr8`, `bayer_gbrg8`, `bayer_grbg8`, `bayer_rggb8`, `bgr8`, `bgra8`, `mono8`, `mono16`, `rgb8`, `rgba8`, `yuv422`
-  const flatbuffers::String *encoding() const {
-    return GetPointer<const flatbuffers::String *>(VT_ENCODING);
+  const ::flatbuffers::String *encoding() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_ENCODING);
   }
   /// Byte length of a single row
   uint32_t step() const {
     return GetField<uint32_t>(VT_STEP, 0);
   }
   /// Raw image data
-  const flatbuffers::Vector<uint8_t> *data() const {
-    return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_DATA);
+  const ::flatbuffers::Vector<uint8_t> *data() const {
+    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_DATA);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<Time>(verifier, VT_TIMESTAMP) &&
+           VerifyField<foxglove::Time>(verifier, VT_TIMESTAMP, 4) &&
            VerifyOffset(verifier, VT_FRAME_ID) &&
            verifier.VerifyString(frame_id()) &&
-           VerifyField<uint32_t>(verifier, VT_WIDTH) &&
-           VerifyField<uint32_t>(verifier, VT_HEIGHT) &&
+           VerifyField<uint32_t>(verifier, VT_WIDTH, 4) &&
+           VerifyField<uint32_t>(verifier, VT_HEIGHT, 4) &&
            VerifyOffset(verifier, VT_ENCODING) &&
            verifier.VerifyString(encoding()) &&
-           VerifyField<uint32_t>(verifier, VT_STEP) &&
+           VerifyField<uint32_t>(verifier, VT_STEP, 4) &&
            VerifyOffset(verifier, VT_DATA) &&
            verifier.VerifyVector(data()) &&
            verifier.EndTable();
@@ -70,12 +114,13 @@ struct RawImage FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct RawImageBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_timestamp(const Time *timestamp) {
+  typedef RawImage Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_timestamp(const foxglove::Time *timestamp) {
     fbb_.AddStruct(RawImage::VT_TIMESTAMP, timestamp);
   }
-  void add_frame_id(flatbuffers::Offset<flatbuffers::String> frame_id) {
+  void add_frame_id(::flatbuffers::Offset<::flatbuffers::String> frame_id) {
     fbb_.AddOffset(RawImage::VT_FRAME_ID, frame_id);
   }
   void add_width(uint32_t width) {
@@ -84,36 +129,35 @@ struct RawImageBuilder {
   void add_height(uint32_t height) {
     fbb_.AddElement<uint32_t>(RawImage::VT_HEIGHT, height, 0);
   }
-  void add_encoding(flatbuffers::Offset<flatbuffers::String> encoding) {
+  void add_encoding(::flatbuffers::Offset<::flatbuffers::String> encoding) {
     fbb_.AddOffset(RawImage::VT_ENCODING, encoding);
   }
   void add_step(uint32_t step) {
     fbb_.AddElement<uint32_t>(RawImage::VT_STEP, step, 0);
   }
-  void add_data(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> data) {
+  void add_data(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data) {
     fbb_.AddOffset(RawImage::VT_DATA, data);
   }
-  explicit RawImageBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit RawImageBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RawImageBuilder &operator=(const RawImageBuilder &);
-  flatbuffers::Offset<RawImage> Finish() {
+  ::flatbuffers::Offset<RawImage> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<RawImage>(end);
+    auto o = ::flatbuffers::Offset<RawImage>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<RawImage> CreateRawImage(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const Time *timestamp = 0,
-    flatbuffers::Offset<flatbuffers::String> frame_id = 0,
+inline ::flatbuffers::Offset<RawImage> CreateRawImage(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
+    ::flatbuffers::Offset<::flatbuffers::String> frame_id = 0,
     uint32_t width = 0,
     uint32_t height = 0,
-    flatbuffers::Offset<flatbuffers::String> encoding = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> encoding = 0,
     uint32_t step = 0,
-    flatbuffers::Offset<flatbuffers::Vector<uint8_t>> data = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data = 0) {
   RawImageBuilder builder_(_fbb);
   builder_.add_data(data);
   builder_.add_step(step);
@@ -125,9 +169,9 @@ inline flatbuffers::Offset<RawImage> CreateRawImage(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<RawImage> CreateRawImageDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const Time *timestamp = 0,
+inline ::flatbuffers::Offset<RawImage> CreateRawImageDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
     const char *frame_id = nullptr,
     uint32_t width = 0,
     uint32_t height = 0,
@@ -148,33 +192,77 @@ inline flatbuffers::Offset<RawImage> CreateRawImageDirect(
       data__);
 }
 
+inline const ::flatbuffers::TypeTable *TimeTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 }
+  };
+  static const int64_t values[] = { 0, 4, 8 };
+  static const char * const names[] = {
+    "sec",
+    "nsec"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_STRUCT, 2, type_codes, nullptr, nullptr, values, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *RawImageTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_SEQUENCE, 0, 0 },
+    { ::flatbuffers::ET_STRING, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_STRING, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_UCHAR, 1, -1 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::TimeTypeTable
+  };
+  static const char * const names[] = {
+    "timestamp",
+    "frame_id",
+    "width",
+    "height",
+    "encoding",
+    "step",
+    "data"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 7, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::RawImage *GetRawImage(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::RawImage>(buf);
+  return ::flatbuffers::GetRoot<foxglove::RawImage>(buf);
 }
 
 inline const foxglove::RawImage *GetSizePrefixedRawImage(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::RawImage>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::RawImage>(buf);
 }
 
 inline bool VerifyRawImageBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::RawImage>(nullptr);
 }
 
 inline bool VerifySizePrefixedRawImageBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::RawImage>(nullptr);
 }
 
 inline void FinishRawImageBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::RawImage> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::RawImage> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedRawImageBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::RawImage> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::RawImage> root) {
   fbb.FinishSizePrefixed(root);
 }
 

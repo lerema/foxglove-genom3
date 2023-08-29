@@ -6,16 +6,204 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-#include "Color_generated.h"
-#include "Point2_generated.h"
-#include "Time_generated.h"
+// Ensure the included flatbuffers.h is the same version as when this file was
+// generated, otherwise it may not be compatible.
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 9,
+             "Non-compatible flatbuffers version included");
 
 namespace foxglove {
 
+struct Color;
+struct ColorBuilder;
+
+struct Point2;
+struct Point2Builder;
+
+struct Time;
+
 struct CircleAnnotation;
+struct CircleAnnotationBuilder;
+
+inline const ::flatbuffers::TypeTable *ColorTypeTable();
+
+inline const ::flatbuffers::TypeTable *Point2TypeTable();
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable();
+
+inline const ::flatbuffers::TypeTable *CircleAnnotationTypeTable();
+
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Time FLATBUFFERS_FINAL_CLASS {
+ private:
+  uint32_t sec_;
+  uint32_t nsec_;
+
+ public:
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return TimeTypeTable();
+  }
+  Time()
+      : sec_(0),
+        nsec_(0) {
+  }
+  Time(uint32_t _sec, uint32_t _nsec)
+      : sec_(::flatbuffers::EndianScalar(_sec)),
+        nsec_(::flatbuffers::EndianScalar(_nsec)) {
+  }
+  /// Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z
+  uint32_t sec() const {
+    return ::flatbuffers::EndianScalar(sec_);
+  }
+  /// Nano-second fractions from 0 to 999,999,999 inclusive
+  uint32_t nsec() const {
+    return ::flatbuffers::EndianScalar(nsec_);
+  }
+};
+FLATBUFFERS_STRUCT_END(Time, 8);
+
+/// A color in RGBA format
+struct Color FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ColorBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return ColorTypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_R = 4,
+    VT_G = 6,
+    VT_B = 8,
+    VT_A = 10
+  };
+  /// Red value between 0 and 1
+  double r() const {
+    return GetField<double>(VT_R, 1.0);
+  }
+  /// Green value between 0 and 1
+  double g() const {
+    return GetField<double>(VT_G, 1.0);
+  }
+  /// Blue value between 0 and 1
+  double b() const {
+    return GetField<double>(VT_B, 1.0);
+  }
+  /// Alpha value between 0 and 1
+  double a() const {
+    return GetField<double>(VT_A, 1.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_R, 8) &&
+           VerifyField<double>(verifier, VT_G, 8) &&
+           VerifyField<double>(verifier, VT_B, 8) &&
+           VerifyField<double>(verifier, VT_A, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct ColorBuilder {
+  typedef Color Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_r(double r) {
+    fbb_.AddElement<double>(Color::VT_R, r, 1.0);
+  }
+  void add_g(double g) {
+    fbb_.AddElement<double>(Color::VT_G, g, 1.0);
+  }
+  void add_b(double b) {
+    fbb_.AddElement<double>(Color::VT_B, b, 1.0);
+  }
+  void add_a(double a) {
+    fbb_.AddElement<double>(Color::VT_A, a, 1.0);
+  }
+  explicit ColorBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Color> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Color>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Color> CreateColor(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double r = 1.0,
+    double g = 1.0,
+    double b = 1.0,
+    double a = 1.0) {
+  ColorBuilder builder_(_fbb);
+  builder_.add_a(a);
+  builder_.add_b(b);
+  builder_.add_g(g);
+  builder_.add_r(r);
+  return builder_.Finish();
+}
+
+/// A point representing a position in 2D space
+struct Point2 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef Point2Builder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return Point2TypeTable();
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6
+  };
+  /// x coordinate position
+  double x() const {
+    return GetField<double>(VT_X, 0.0);
+  }
+  /// y coordinate position
+  double y() const {
+    return GetField<double>(VT_Y, 0.0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_X, 8) &&
+           VerifyField<double>(verifier, VT_Y, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct Point2Builder {
+  typedef Point2 Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(double x) {
+    fbb_.AddElement<double>(Point2::VT_X, x, 0.0);
+  }
+  void add_y(double y) {
+    fbb_.AddElement<double>(Point2::VT_Y, y, 0.0);
+  }
+  explicit Point2Builder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Point2> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Point2>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Point2> CreatePoint2(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double x = 0.0,
+    double y = 0.0) {
+  Point2Builder builder_(_fbb);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  return builder_.Finish();
+}
 
 /// A circle annotation on a 2D image
-struct CircleAnnotation FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct CircleAnnotation FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CircleAnnotationBuilder Builder;
+  static const ::flatbuffers::TypeTable *MiniReflectTypeTable() {
+    return CircleAnnotationTypeTable();
+  }
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIMESTAMP = 4,
     VT_POSITION = 6,
@@ -25,12 +213,12 @@ struct CircleAnnotation FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_OUTLINE_COLOR = 14
   };
   /// Timestamp of circle
-  const Time *timestamp() const {
-    return GetStruct<const Time *>(VT_TIMESTAMP);
+  const foxglove::Time *timestamp() const {
+    return GetStruct<const foxglove::Time *>(VT_TIMESTAMP);
   }
   /// Center of the circle in 2D image coordinates (pixels)
-  const Point2 *position() const {
-    return GetPointer<const Point2 *>(VT_POSITION);
+  const foxglove::Point2 *position() const {
+    return GetPointer<const foxglove::Point2 *>(VT_POSITION);
   }
   /// Circle diameter in pixels
   double diameter() const {
@@ -41,20 +229,20 @@ struct CircleAnnotation FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     return GetField<double>(VT_THICKNESS, 0.0);
   }
   /// Fill color
-  const Color *fill_color() const {
-    return GetPointer<const Color *>(VT_FILL_COLOR);
+  const foxglove::Color *fill_color() const {
+    return GetPointer<const foxglove::Color *>(VT_FILL_COLOR);
   }
   /// Outline color
-  const Color *outline_color() const {
-    return GetPointer<const Color *>(VT_OUTLINE_COLOR);
+  const foxglove::Color *outline_color() const {
+    return GetPointer<const foxglove::Color *>(VT_OUTLINE_COLOR);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<Time>(verifier, VT_TIMESTAMP) &&
+           VerifyField<foxglove::Time>(verifier, VT_TIMESTAMP, 4) &&
            VerifyOffset(verifier, VT_POSITION) &&
            verifier.VerifyTable(position()) &&
-           VerifyField<double>(verifier, VT_DIAMETER) &&
-           VerifyField<double>(verifier, VT_THICKNESS) &&
+           VerifyField<double>(verifier, VT_DIAMETER, 8) &&
+           VerifyField<double>(verifier, VT_THICKNESS, 8) &&
            VerifyOffset(verifier, VT_FILL_COLOR) &&
            verifier.VerifyTable(fill_color()) &&
            VerifyOffset(verifier, VT_OUTLINE_COLOR) &&
@@ -64,12 +252,13 @@ struct CircleAnnotation FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct CircleAnnotationBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_timestamp(const Time *timestamp) {
+  typedef CircleAnnotation Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_timestamp(const foxglove::Time *timestamp) {
     fbb_.AddStruct(CircleAnnotation::VT_TIMESTAMP, timestamp);
   }
-  void add_position(flatbuffers::Offset<Point2> position) {
+  void add_position(::flatbuffers::Offset<foxglove::Point2> position) {
     fbb_.AddOffset(CircleAnnotation::VT_POSITION, position);
   }
   void add_diameter(double diameter) {
@@ -78,32 +267,31 @@ struct CircleAnnotationBuilder {
   void add_thickness(double thickness) {
     fbb_.AddElement<double>(CircleAnnotation::VT_THICKNESS, thickness, 0.0);
   }
-  void add_fill_color(flatbuffers::Offset<Color> fill_color) {
+  void add_fill_color(::flatbuffers::Offset<foxglove::Color> fill_color) {
     fbb_.AddOffset(CircleAnnotation::VT_FILL_COLOR, fill_color);
   }
-  void add_outline_color(flatbuffers::Offset<Color> outline_color) {
+  void add_outline_color(::flatbuffers::Offset<foxglove::Color> outline_color) {
     fbb_.AddOffset(CircleAnnotation::VT_OUTLINE_COLOR, outline_color);
   }
-  explicit CircleAnnotationBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit CircleAnnotationBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  CircleAnnotationBuilder &operator=(const CircleAnnotationBuilder &);
-  flatbuffers::Offset<CircleAnnotation> Finish() {
+  ::flatbuffers::Offset<CircleAnnotation> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<CircleAnnotation>(end);
+    auto o = ::flatbuffers::Offset<CircleAnnotation>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<CircleAnnotation> CreateCircleAnnotation(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const Time *timestamp = 0,
-    flatbuffers::Offset<Point2> position = 0,
+inline ::flatbuffers::Offset<CircleAnnotation> CreateCircleAnnotation(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const foxglove::Time *timestamp = nullptr,
+    ::flatbuffers::Offset<foxglove::Point2> position = 0,
     double diameter = 0.0,
     double thickness = 0.0,
-    flatbuffers::Offset<Color> fill_color = 0,
-    flatbuffers::Offset<Color> outline_color = 0) {
+    ::flatbuffers::Offset<foxglove::Color> fill_color = 0,
+    ::flatbuffers::Offset<foxglove::Color> outline_color = 0) {
   CircleAnnotationBuilder builder_(_fbb);
   builder_.add_thickness(thickness);
   builder_.add_diameter(diameter);
@@ -114,33 +302,111 @@ inline flatbuffers::Offset<CircleAnnotation> CreateCircleAnnotation(
   return builder_.Finish();
 }
 
+inline const ::flatbuffers::TypeTable *ColorTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "r",
+    "g",
+    "b",
+    "a"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 4, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *Point2TypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 }
+  };
+  static const char * const names[] = {
+    "x",
+    "y"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 2, type_codes, nullptr, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *TimeTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_UINT, 0, -1 },
+    { ::flatbuffers::ET_UINT, 0, -1 }
+  };
+  static const int64_t values[] = { 0, 4, 8 };
+  static const char * const names[] = {
+    "sec",
+    "nsec"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_STRUCT, 2, type_codes, nullptr, nullptr, values, names
+  };
+  return &tt;
+}
+
+inline const ::flatbuffers::TypeTable *CircleAnnotationTypeTable() {
+  static const ::flatbuffers::TypeCode type_codes[] = {
+    { ::flatbuffers::ET_SEQUENCE, 0, 0 },
+    { ::flatbuffers::ET_SEQUENCE, 0, 1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_DOUBLE, 0, -1 },
+    { ::flatbuffers::ET_SEQUENCE, 0, 2 },
+    { ::flatbuffers::ET_SEQUENCE, 0, 2 }
+  };
+  static const ::flatbuffers::TypeFunction type_refs[] = {
+    foxglove::TimeTypeTable,
+    foxglove::Point2TypeTable,
+    foxglove::ColorTypeTable
+  };
+  static const char * const names[] = {
+    "timestamp",
+    "position",
+    "diameter",
+    "thickness",
+    "fill_color",
+    "outline_color"
+  };
+  static const ::flatbuffers::TypeTable tt = {
+    ::flatbuffers::ST_TABLE, 6, type_codes, type_refs, nullptr, nullptr, names
+  };
+  return &tt;
+}
+
 inline const foxglove::CircleAnnotation *GetCircleAnnotation(const void *buf) {
-  return flatbuffers::GetRoot<foxglove::CircleAnnotation>(buf);
+  return ::flatbuffers::GetRoot<foxglove::CircleAnnotation>(buf);
 }
 
 inline const foxglove::CircleAnnotation *GetSizePrefixedCircleAnnotation(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<foxglove::CircleAnnotation>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<foxglove::CircleAnnotation>(buf);
 }
 
 inline bool VerifyCircleAnnotationBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<foxglove::CircleAnnotation>(nullptr);
 }
 
 inline bool VerifySizePrefixedCircleAnnotationBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<foxglove::CircleAnnotation>(nullptr);
 }
 
 inline void FinishCircleAnnotationBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::CircleAnnotation> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::CircleAnnotation> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedCircleAnnotationBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<foxglove::CircleAnnotation> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<foxglove::CircleAnnotation> root) {
   fbb.FinishSizePrefixed(root);
 }
 
