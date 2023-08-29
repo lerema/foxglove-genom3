@@ -30,7 +30,7 @@ component FoxgloveStudio {
   require "genom3 >= 2.99.26";
   doc 	  "A GenoM module for foxglove studio integration.";
 
-  codels-require "opencv4, felix-g3utils, vision-idl";
+  codels-require "opencv4, felix-g3utils, vision-idl, flatbuffers";
 
   exception e_BAD_PORT { short code; string<128> message; };
   exception e_OPENCV_ERROR { short code; string<128> message; };

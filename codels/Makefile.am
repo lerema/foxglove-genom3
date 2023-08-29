@@ -4,6 +4,8 @@ lib_LTLIBRARIES = libFoxgloveStudio_codels.la
 libFoxgloveStudio_codels_la_SOURCES  =	FoxgloveStudio_c_types.h
 libFoxgloveStudio_codels_la_SOURCES +=	FoxgloveStudio_codels.cc
 libFoxgloveStudio_codels_la_SOURCES +=	FoxgloveStudio_publish_codels.cc
+libFoxgloveStudio_codels_la_SOURCES += foxglove/*.hpp
+libFoxgloveStudio_codels_la_SOURCES += foxglove/*.h
 
 libFoxgloveStudio_codels_la_CPPFLAGS =	$(requires_CFLAGS)
 libFoxgloveStudio_codels_la_LIBADD   =	$(requires_LIBS)
