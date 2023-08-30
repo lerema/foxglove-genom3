@@ -5,6 +5,7 @@
 #include "foxglove/websocket/websocket_notls.hpp"
 #include "foxglove/websocket/websocket_server.hpp"
 #include "foxglove/generated/SceneUpdate_generated.h"
+#include "schema.h"
 
 #include <chrono>
 #include <iostream>
@@ -141,17 +142,20 @@ namespace foxglove
 
         bool addChannels()
         {
+            auto schema = Schema();
             for (auto &channel_data : channel_data_)
             {
                 auto topic_name = channel_data["topic_name"];
                 auto schema_name = channel_data["schema_name"];
-                auto schema = foxglove::base64Encode(schema_name);
+                // Strip foxglove.schema_name to get schema_name
+                auto schema_strip = schema_name.substr(9);
+                std::string schema_path = schema.getSchemaDefinitionPath(SchemaDefinition::SceneUpdate);
 
                 channel_ids_ = server_->addChannels({{
                     .topic = topic_name,
                     .encoding = "flatbuffer",
                     .schemaName = schema_name,
-                    .schema = foxglove::base64Encode(getFileContents("/home/shasthamsa/work/drone-experiment/foxglove-genom3/flatbuffers/schema/SceneUpdate.bfbs")),
+                    .schema = foxglove::base64Encode(getFileContents(schema_path)),
                 }});
 
                 std::cout << "added channel " << topic_name << std::endl;
