@@ -9,3 +9,5 @@ configure
 *~
 
 *build*
+flatbuffers/schema/*
+*generated*
