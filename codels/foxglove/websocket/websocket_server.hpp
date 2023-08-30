@@ -153,6 +153,7 @@ public:
 
   uint16_t getPort() override;
   std::string remoteEndpointString(ConnHandle clientHandle) override;
+  Channel getChannel(ChannelId chanId) const;
 
   typename ServerType::endpoint_type& getEndpoint() & {
     return _server;
@@ -953,6 +954,15 @@ inline void Server<ServerConfiguration>::broadcastMessage(ChannelId chanId, uint
     (void)clientInfo;
     sendMessage(hdl, chanId, timestamp, payload, payloadSize);
   }
+}
+
+template <typename ServerConfiguration>
+inline Channel Server<ServerConfiguration>::getChannel(ChannelId chanId) const {
+  const auto it = _channels.find(chanId);
+  if (it == _channels.end()) {
+    throw std::runtime_error("Channel " + std::to_string(chanId) + " not found");
+  }
+  return it->second;
 }
 
 template <typename ServerConfiguration>

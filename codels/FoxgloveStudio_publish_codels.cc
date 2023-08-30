@@ -58,7 +58,11 @@ setup_port_serialization(const FoxgloveStudio_ids *ids,
   // }
   server->startServer("0.0.0.0", 8765);
   server->addChannel("example_msg", "foxglove.SceneUpdate");
-  auto result = server->addChannels();
+  // server->addChannel("example_image", "foxglove.RawImage");
+  server->addChannel("example_pose", "foxglove.Pose");
+
+  server->addChannels();
+
   return FoxgloveStudio_publish;
 }
 

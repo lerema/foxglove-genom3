@@ -34,6 +34,7 @@ enum class SchemaDefinition
 {
     SceneUpdate,
     RawImage,
+    Pose,
 
 };
 
@@ -52,7 +53,29 @@ struct Schema
             return schema_path + "/SceneUpdate.bfbs";
         case SchemaDefinition::RawImage:
             return schema_path + "/RawImage.bfbs";
+        case SchemaDefinition::Pose:
+            return schema_path + "/Pose.bfbs";
         default:
+            throw std::runtime_error("Schema definition not found.");
+        }
+    }
+
+    std::string getSchemaDefinitionPath(std::string schema_definition)
+    {
+        if (schema_definition == "foxglove.SceneUpdate")
+        {
+            return schema_path + "/SceneUpdate.bfbs";
+        }
+        else if (schema_definition == "foxglove.RawImage")
+        {
+            return schema_path + "/RawImage.bfbs";
+        }
+        else if (schema_definition == "foxglove.Pose")
+        {
+            return schema_path + "/Pose.bfbs";
+        }
+        else
+        {
             throw std::runtime_error("Schema definition not found.");
         }
     }

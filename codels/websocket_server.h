@@ -134,36 +134,33 @@ namespace foxglove
 
         void addChannel(const std::string &topic_name, const std::string &schema_name)
         {
-            std::map<std::string, std::string> channel_data;
-            channel_data["topic_name"] = topic_name;
-            channel_data["schema_name"] = schema_name;
-            channel_data_.push_back(channel_data);
+            // Create Channel
+            foxglove::ChannelWithoutId channel;
+            channel.topic = topic_name;
+            channel.encoding = "flatbuffer";
+            channel.schemaName = schema_name;
+            channel.schema = foxglove::base64Encode(getFileContents(schema_.getSchemaDefinitionPath(SchemaDefinition::SceneUpdate)));
+
+            channels_.push_back(channel);
+
+            std::cout << "added channel " << topic_name << std::endl;
         }
 
-        bool addChannels()
+        void addChannels()
         {
-            auto schema = Schema();
-            for (auto &channel_data : channel_data_)
+            channel_ids_ = server_->addChannels(channels_);
+
+            // Map channel ids to channel names
+            for (auto &channel_id : channel_ids_)
             {
-                auto topic_name = channel_data["topic_name"];
-                auto schema_name = channel_data["schema_name"];
-                // Strip foxglove.schema_name to get schema_name
-                auto schema_strip = schema_name.substr(9);
-                std::string schema_path = schema.getSchemaDefinitionPath(SchemaDefinition::SceneUpdate);
-
-                channel_ids_ = server_->addChannels({{
-                    .topic = topic_name,
-                    .encoding = "flatbuffer",
-                    .schemaName = schema_name,
-                    .schema = foxglove::base64Encode(getFileContents(schema_path)),
-                }});
-
-                std::cout << "added channel " << topic_name << std::endl;
+                auto channel = server_->getChannel(channel_id);
+                channel_ids_map_[channel.topic] = channel_id;
+                std::cout << "Channel " << channel.topic << " has id " << channel_id << std::endl;
             }
-            return true;
         }
 
-        void waitOnSignal()
+        void
+        waitOnSignal()
         {
             websocketpp::lib::asio::signal_set signals_(server_->getEndpoint().get_io_service(), SIGINT);
             signals_.async_wait([&](std::error_code const &ec, int sig)
@@ -221,8 +218,13 @@ namespace foxglove
                 return;
             }
 
-            auto chanId = channel_ids_.front();
+            auto chanId = channel_ids_map_.at(topic_name);
             server_->broadcastMessage(chanId, now, builder_.GetBufferPointer(), builder_.GetSize());
+
+            // chanId = channel_ids_.at(1);
+            // builder_.Clear();
+            // builder_.Finish(pose);
+            // server_->broadcastMessage(chanId, now, builder_.GetBufferPointer(), builder_.GetSize());
 
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
@@ -234,14 +236,18 @@ namespace foxglove
         foxglove::ServerHandlers<foxglove::ConnHandle> handlers_;
         std::unique_ptr<foxglove::Server<foxglove::WebSocketNoTls>> server_;
 
-        std::vector<std::map<std::string, std::string>> channel_data_;
+        std::map<std::string, foxglove::ChannelId> channel_ids_map_;
         std::vector<foxglove::ChannelId> channel_ids_;
+        std::vector<foxglove::ChannelWithoutId> channels_;
 
         // Flatbuffers
         flatbuffers::FlatBufferBuilder builder_;
 
         // Thread
         std::thread signal_thread_;
+
+        // Schema
+        Schema schema_;
 
     }; // class FoxgloveWebsocketServer
 } // namespace foxglove
