@@ -5,7 +5,6 @@
 
 #include "flatbuffers/flatbuffers.h"
 #include "websocket_server.h"
-#include "foxglove/generated/RawImage_generated.h"
 
 /* --- Task publish ----------------------------------------------------- */
 
