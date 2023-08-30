@@ -25,7 +25,6 @@ wait_for_ports(FoxgloveStudio_ids *ids, const FoxgloveStudio_ids *port,
   /* skeleton sample */ return FoxgloveStudio_setup;
 }
 
-
 /** Codel setup_port_serialization of task publish.
  *
  * Triggered by FoxgloveStudio_setup.
@@ -38,26 +37,30 @@ setup_port_serialization(const FoxgloveStudio_ids *ids,
                          const FoxgloveStudio_ids *port,
                          const genom_context self)
 {
-  if (ids->start_foxglove_server)
-  {
-    server->startServer("0.0.0.0", 8765);
-    server->addChannel("example_msg", "foxglove.SceneUpdate");
-    auto result = server->addChannels();
-    if (!result)
-    {
-      std::cerr << "Failed to add channels" << std::endl;
-      FoxgloveStudio_e_BAD_CONFIG_detail *msg;
-      snprintf(msg->message, sizeof(msg->message), "%s", "Failed to add channels");
-      return FoxgloveStudio_e_BAD_CONFIG(msg, self);
-    }
-  }
-  else
-  {
-    std::cerr << "Not starting foxglove server" << std::endl;
-  }
+  // if (ids->start_foxglove_server)
+  // {
+  //   std::cout << "Starting foxglove server" << std::endl;
+  //   server->startServer("0.0.0.0", 8765);
+  //   server->addChannel("example_msg", "foxglove.SceneUpdate");
+  //   auto result = server->addChannels();
+  //   if (!result)
+  //   {
+  //     std::cerr << "Failed to add channels" << std::endl;
+  //     FoxgloveStudio_e_BAD_CONFIG_detail *msg;
+  //     snprintf(msg->message, sizeof(msg->message), "%s", "Failed to add channels");
+  //     return FoxgloveStudio_e_BAD_CONFIG(msg, self);
+  //   }
+  // }
+  // else
+  // {
+  //   std::cerr << "Not starting foxglove server" << std::endl;
+  //   return FoxgloveStudio_start;
+  // }
+  server->startServer("0.0.0.0", 8765);
+  server->addChannel("example_msg", "foxglove.SceneUpdate");
+  auto result = server->addChannels();
   return FoxgloveStudio_publish;
 }
-
 
 /** Codel publish_data of task publish.
  *
