@@ -83,7 +83,53 @@ Set the verbose level.
 '''
 
 [[setup_server]]
-=== setup_server (function)
+=== setup_server (attribute)
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Inputs
+[disc]
+ * `string` `server_ip` (default `"0.0.0.0"`) Websocket server ip
+
+ * `unsigned short` `server_port` (default `"8765"`) Websocket server port
+
+|===
+
+Setup the websocket connection.
+
+'''
+
+[[start_foxglove_server]]
+=== start_foxglove_server (function)
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Throws
+[disc]
+ * `exception ::FoxgloveStudio::e_BAD_CONFIG`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_BAD_PORT`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_OPENCV_ERROR`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_OUT_OF_MEM`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+|===
+
+Start the foxglove server.
+
+'''
+
+[[stop_foxglove_server]]
+=== stop_foxglove_server (function)
 
 [role="small", width="50%", float="right", cols="1"]
 |===
@@ -103,9 +149,17 @@ a|.Throws
  ** `short` `code`
  ** `string<128>` `message`
 
+ * `exception ::FoxgloveStudio::e_OPENCV_ERROR`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_OUT_OF_MEM`
+ ** `short` `code`
+ ** `string<128>` `message`
+
 |===
 
-Setup the websocket connection.
+Stop the foxglove server.
 
 '''
 

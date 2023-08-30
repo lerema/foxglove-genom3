@@ -33,7 +33,7 @@ PKG_CHECK_MODULES(requires, [
   genom3 >= 2.99.26
 ])
 PKG_CHECK_MODULES(codels_requires, [
-  opencv4, felix-g3utils, vision-idl, flatbuffers, openssl
+  opencv4, felix-g3utils, vision-idl, flatbuffers, openssl, zlib
 ])
 
 AC_PATH_PROG(GENOM3, [genom3], [no])

@@ -8,6 +8,7 @@
 
 /* --- Task publish ----------------------------------------------------- */
 
+std::unique_ptr<foxglove::FoxgloveWebsocketServer> server = std::make_unique<foxglove::FoxgloveWebsocketServer>();
 
 /** Codel wait_for_ports of task publish.
  *
@@ -37,8 +38,24 @@ setup_port_serialization(const FoxgloveStudio_ids *ids,
                          const FoxgloveStudio_ids *port,
                          const genom_context self)
 {
-  /* skeleton sample: insert your code */
-  /* skeleton sample */ return FoxgloveStudio_publish;
+  if (ids->start_foxglove_server)
+  {
+    server->startServer("0.0.0.0", 8765);
+    server->addChannel("example_msg", "foxglove.SceneUpdate");
+    auto result = server->addChannels();
+    if (!result)
+    {
+      std::cerr << "Failed to add channels" << std::endl;
+      FoxgloveStudio_e_BAD_CONFIG_detail *msg;
+      snprintf(msg->message, sizeof(msg->message), "%s", "Failed to add channels");
+      return FoxgloveStudio_e_BAD_CONFIG(msg, self);
+    }
+  }
+  else
+  {
+    std::cerr << "Not starting foxglove server" << std::endl;
+  }
+  return FoxgloveStudio_publish;
 }
 
 
@@ -53,6 +70,6 @@ genom_event
 publish_data(const FoxgloveStudio_ids *ids,
              const FoxgloveStudio_ids *port, const genom_context self)
 {
-  /* skeleton sample: insert your code */
-  /* skeleton sample */ return FoxgloveStudio_publish;
+  server->sendData("example_msg", "Hello World!");
+  return FoxgloveStudio_publish;
 }

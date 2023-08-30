@@ -17,7 +17,7 @@
 
 namespace foxglove {
 template <>
-void Server<WebSocketNoTls>::setupTlsHandler() {}
+inline void Server<foxglove::WebSocketNoTls>::setupTlsHandler() {}
 
 static uint64_t nanosecondsSinceEpoch() {
   return uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -51,6 +51,48 @@ class FoxgloveWebsocketServer {
                 };
 
                 // Set up server
+                server_->setHandlers(std::move(handlers_));
+                server_->start(address_, port_);
+
+                // Set defaults for flatbuffers
+                builder_.ForceDefaults(true);
+
+                // Set up signal thread
+                signal_thread_ = std::thread([&]() {
+                    waitOnSignal();
+                    server_->stop();
+                });
+            }
+        
+        FoxgloveWebsocketServer()
+            {
+                const auto logHandler = [](foxglove::WebSocketLogLevel, char const* msg) {
+                    std::cout << msg << std::endl;
+                };
+
+                server_ = std::make_unique<foxglove::Server<foxglove::WebSocketNoTls>>("Foxglove Websocket Server", logHandler, options_);
+
+                // Set handlers
+                handlers_.subscribeHandler = [&](foxglove::ChannelId chanId, foxglove::ConnHandle) {
+                    std::cout << "first client subscribed to " << chanId << std::endl;
+                };
+                handlers_.unsubscribeHandler = [&](foxglove::ChannelId chanId, foxglove::ConnHandle) {
+                    std::cout << "last client unsubscribed from " << chanId << std::endl;
+                };
+            }
+
+            ~FoxgloveWebsocketServer()
+            {
+                server_->stop();
+                signal_thread_.join();
+            }
+
+            void startServer(const std::string &address, const uint16_t port)
+            {
+                // Set up server
+                address_ = address;
+                port_ = port;
+                
                 server_->setHandlers(std::move(handlers_));
                 server_->start(address_, port_);
 
