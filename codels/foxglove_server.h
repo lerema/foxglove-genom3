@@ -221,10 +221,12 @@ namespace foxglove
             auto chanId = channel_ids_map_.at(topic_name);
             server_->broadcastMessage(chanId, now, builder_.GetBufferPointer(), builder_.GetSize());
 
-            // chanId = channel_ids_.at(1);
-            // builder_.Clear();
-            // builder_.Finish(pose);
-            // server_->broadcastMessage(chanId, now, builder_.GetBufferPointer(), builder_.GetSize());
+            chanId = channel_ids_map_.at("example_pose");
+            auto new_pose = foxglove::CreatePose(
+                builder_, foxglove::CreateVector3(builder_, 1, 1, 1),
+                createQuaternionFromAxisAngle(builder_, 0, 0, 1, double(now) / 1e9 * 0.5));
+            builder_.Finish(new_pose);
+            server_->broadcastMessage(chanId, now, builder_.GetBufferPointer(), builder_.GetSize());
 
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }

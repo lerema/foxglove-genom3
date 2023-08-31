@@ -4,7 +4,7 @@
 #include "FoxgloveStudio_c_types.h"
 
 #include "flatbuffers/flatbuffers.h"
-#include "websocket_server.h"
+#include "foxglove_server.h"
 
 /* --- Task publish ----------------------------------------------------- */
 

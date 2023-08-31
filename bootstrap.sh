@@ -1,5 +1,5 @@
 #!/bin/sh
-sudo apt install -y libwebsocketpp-dev nlohmann-json3-dev flatbuffers-compiler libflatbuffers-dev
+sudo apt install -y libwebsocketpp-dev nlohmann-json3-dev
 
 flatc --schema -b -o flatbuffers/schema flatbuffers/definitions/*.fbs
 autoreconf -vi
