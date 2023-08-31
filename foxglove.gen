@@ -36,9 +36,18 @@ component FoxgloveStudio {
   exception e_OUT_OF_MEM { short code; string<128> message; };
   exception e_BAD_CONFIG { short code; string<128> message; };
 
+  enum PortType {
+    or_sensor_frame
+  };
+
+  struct Port {
+    string<128> name;
+    PortType type;
+  };
+
   /* -------------------------- IDS --------------------------- */
   ids {
-    sequence<string> image_port_names;
+    sequence<Port> ports;
 
     boolean start_foxglove_server;
     string server_ip;
@@ -49,26 +58,39 @@ component FoxgloveStudio {
 
   /* ------------- DEFINITION OF PORTS -------------- */
   // Camera
-  port multiple in or::sensor::frame frame {
+  port multiple in or::sensor::frame frames {
+    doc "The image frame port.";
+  };
+  port in or::sensor::frame frame {
     doc "The image frame port.";
   };
 
   /* ------------------ TASK DEFINITION -------------------- */
-  task publish {
+  task main {
     doc "Publish to foxglove studio.";
 
-    codel<start> wait_for_ports(inout ::ids, in ::port)
-        yield setup, pause::start;
-    codel<setup> setup_port_serialization(in ::ids, in ::port)
+    codel<start> wait_for_ports(inout ::ids, in frame)
+        yield server, pause::start;
+    codel<server> setup_server_configuration(in ::ids)
+        yield setup;
+    codel<setup> setup_port_serialization(in ::ids, in frame)
         yield publish, start;
-    codel<publish> publish_data(in ::ids, in ::port)
+    codel<publish> publish_data(in ::ids, in frame)
         yield publish, pause::start;
 
     throw e_BAD_CONFIG, e_BAD_PORT, e_OPENCV_ERROR, e_OUT_OF_MEM;
   };
 
   /* ------------------ ACTIVITY DEFINITION --------------------- */
+  activity add_port(in string<128> port_name =: "Genom port name", in PortType port_type =: "Genom port type") {
+    doc "Add a port to the list of ports to be published.";
+    task main;
 
+    codel<start> setup_port_info(in port_name, in port_type, ids out ports, in frame)
+        yield ether;
+
+    throws e_BAD_PORT, e_OUT_OF_MEM;
+  };
 
   /* ------------------ SERVICE DEFINITION: Attributes -------------------- */
   attribute set_debug(in debug = FALSE : "Enable debug (default: false)" ) {
@@ -90,7 +112,7 @@ component FoxgloveStudio {
     doc "Start the foxglove server.";
     validate check_info(in ::ids);
 
-    codel start_server(ids in start_foxglove_server);
+    codel start_server(ids out start_foxglove_server);
     throws e_BAD_CONFIG, e_BAD_PORT, e_OPENCV_ERROR, e_OUT_OF_MEM;
   };
 
@@ -99,7 +121,7 @@ component FoxgloveStudio {
     doc "Stop the foxglove server.";
     validate check_info(in ::ids);
 
-    codel stop_server(ids in start_foxglove_server);
+    codel stop_server(ids out start_foxglove_server);
     throws e_BAD_CONFIG, e_BAD_PORT, e_OPENCV_ERROR, e_OUT_OF_MEM;
   };
 };

@@ -26,8 +26,32 @@ A GenoM module for foxglove studio integration.
 == Ports
 
 
+[[frames]]
+=== frames (multiple in)
+
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Data structure
+[disc]
+ * `struct ::or::sensor::frame` `frames`
+ ** `struct ::or::time::ts` `ts`
+ *** `long` `sec`
+ *** `long` `nsec`
+ ** `boolean` `compressed`
+ ** `unsigned short` `height`
+ ** `unsigned short` `width`
+ ** `unsigned short` `bpp`
+ ** `sequence< octet >` `pixels`
+
+|===
+
+The image frame port.
+
+'''
+
 [[frame]]
-=== frame (multiple in)
+=== frame (in)
 
 
 [role="small", width="50%", float="right", cols="1"]
@@ -51,6 +75,45 @@ The image frame port.
 '''
 
 == Services
+
+[[add_port]]
+=== add_port (activity)
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Inputs
+[disc]
+ * `string<128>` `port_name` Genom port name
+
+ * `enum ::FoxgloveStudio::PortType` `port_type` Genom port type ∈ { `or_sensor_frame` }
+
+a|.Throws
+[disc]
+ * `exception ::FoxgloveStudio::e_BAD_CONFIG`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_BAD_PORT`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_OPENCV_ERROR`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_OUT_OF_MEM`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+a|.Context
+[disc]
+  * In task `<<main>>`
+  * Reads port `<<frame>>`
+|===
+
+Add a port to the list of ports to be published.
+
+'''
 
 [[set_debug]]
 === set_debug (attribute)
@@ -165,14 +228,15 @@ Stop the foxglove server.
 
 == Tasks
 
-[[publish]]
-=== publish
+[[main]]
+=== main
 
 [role="small", width="50%", float="right", cols="1"]
 |===
 a|.Context
 [disc]
   * Free running
+* Reads port `<<frame>>`
 a|.Throws
 [disc]
  * `exception ::FoxgloveStudio::e_BAD_CONFIG`
