@@ -3,6 +3,7 @@
 
 #include "FoxgloveStudio_c_types.h"
 #include "foxglove_server.h"
+#include "foxglove/generated/RawImage_generated.h"
 
 std::unique_ptr<foxglove::FoxgloveWebsocketServer> server = std::make_unique<foxglove::FoxgloveWebsocketServer>();
 
@@ -73,9 +74,7 @@ setup_port_serialization(const FoxgloveStudio_ids *ids,
                          const FoxgloveStudio_frame *frame,
                          const genom_context self)
 {
-  server->addChannel("example_msg", "foxglove.SceneUpdate");
-  // server->addChannel("example_image", "foxglove.RawImage");
-  server->addChannel("example_pose", "foxglove.Pose");
+  server->addChannel("frame", "foxglove.RawImage");
 
   server->addChannels();
 
@@ -94,7 +93,30 @@ publish_data(const FoxgloveStudio_ids *ids,
              const FoxgloveStudio_frame *frame,
              const genom_context self)
 {
-  server->sendData("example_msg", "Hello World!");
+  // Read image frame
+  or_sensor_frame *image_frame;
+  if (frame->read(self) == genom_ok && frame->data(self))
+  {
+    image_frame = frame->data(self);
+  }
+  else
+  {
+    std::cerr << "Failed to read frame" << std::endl;
+    return FoxgloveStudio_publish;
+  }
+
+  // Create flatbuffer raw image
+  auto timestamp = foxglove::Time(image_frame->ts.sec, image_frame->ts.nsec);
+  auto image = foxglove::CreateRawImage(server->getBuilder(),
+                                        &timestamp,
+                                        server->getBuilder().CreateString("camera"),
+                                        image_frame->width,
+                                        image_frame->height,
+                                        server->getBuilder().CreateString("rgb8"),
+                                        image_frame->width * 3,
+                                        server->getBuilder().CreateVector<uint8_t>(image_frame->pixels._buffer, image_frame->pixels._length));
+  server->sendData("frame", image, image_frame->ts.sec * 1000000000 + image_frame->ts.nsec);
+
   server->getBuilder().Clear();
   return FoxgloveStudio_publish;
 }

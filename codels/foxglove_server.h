@@ -4,7 +4,7 @@
 #include "foxglove/websocket/base64.hpp"
 #include "foxglove/websocket/websocket_notls.hpp"
 #include "foxglove/websocket/websocket_server.hpp"
-#include "foxglove/generated/SceneUpdate_generated.h"
+#include "foxglove/generated/RawImage_generated.h"
 #include "schema.h"
 
 #include <chrono>
@@ -26,13 +26,6 @@ namespace foxglove
         return uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
                             std::chrono::system_clock::now().time_since_epoch())
                             .count());
-    }
-
-    static auto createQuaternionFromAxisAngle(flatbuffers::FlatBufferBuilder &builder, double x,
-                                              double y, double z, double angle)
-    {
-        double s = std::sin(angle / 2);
-        return foxglove::CreateQuaternion(builder, x * s, y * s, z * s, std::cos(angle / 2));
     }
 
     static std::string getFileContents(std::string_view path)
@@ -179,57 +172,17 @@ namespace foxglove
         }
 
         template <typename T>
-        void sendData(const std::string &topic_name, const T &data)
+        void sendData(const std::string &topic_name, const T &data, const uint64_t &now)
         {
-            const auto now = nanosecondsSinceEpoch();
-            auto timestamp = foxglove::Time(now / 1'000'000'000, now % 1'000'000'000);
-
-            auto pose = foxglove::CreatePose(
-                builder_, foxglove::CreateVector3(builder_, 2, 0, 0),
-                createQuaternionFromAxisAngle(builder_, 0, 0, 1, double(now) / 1e9 * 0.5));
-
-            auto size = foxglove::CreateVector3(builder_, 1, 1, 1);
-            auto color = foxglove::CreateColor(builder_, 0.6, 0.2, 1, 1);
-            auto cubeBuilder = foxglove::CubePrimitiveBuilder(builder_);
-            cubeBuilder.add_pose(pose);
-            cubeBuilder.add_size(size);
-            cubeBuilder.add_color(color);
-            const auto cube = cubeBuilder.Finish();
-
-            auto frameId = builder_.CreateString("root");
-            auto cubes = builder_.CreateVector({cube});
-            auto entityBuilder = foxglove::SceneEntityBuilder(builder_);
-            entityBuilder.add_timestamp(&timestamp);
-            entityBuilder.add_frame_id(frameId);
-            entityBuilder.add_cubes(cubes);
-            const auto entity = entityBuilder.Finish();
-
-            auto entities = builder_.CreateVector({entity});
-            auto updateBuilder = foxglove::SceneUpdateBuilder(builder_);
-            updateBuilder.add_entities(entities);
-            const auto update = updateBuilder.Finish();
-            builder_.Finish(update);
-
-            auto verifier = flatbuffers::Verifier(builder_.GetBufferPointer(), builder_.GetSize());
-            if (!foxglove::VerifySceneUpdateBuffer(verifier))
-            {
-                std::cerr << "Flatbuffer verification failed" << std::endl;
-            }
+            builder_.Finish(data);
 
             if (channel_ids_.size() == 0)
             {
-                std::cerr << "No channels / port added added" << std::endl;
+                std::cerr << "No channels / port added added yet" << std::endl;
                 return;
             }
 
             auto chanId = channel_ids_map_.at(topic_name);
-            server_->broadcastMessage(chanId, now, builder_.GetBufferPointer(), builder_.GetSize());
-
-            chanId = channel_ids_map_.at("example_pose");
-            auto new_pose = foxglove::CreatePose(
-                builder_, foxglove::CreateVector3(builder_, 1, 1, 1),
-                createQuaternionFromAxisAngle(builder_, 0, 0, 1, double(now) / 1e9 * 0.5));
-            builder_.Finish(new_pose);
             server_->broadcastMessage(chanId, now, builder_.GetBufferPointer(), builder_.GetSize());
 
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
