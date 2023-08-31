@@ -78,5 +78,6 @@ publish_data(const FoxgloveStudio_ids *ids,
              const FoxgloveStudio_ids *port, const genom_context self)
 {
   server->sendData("example_msg", "Hello World!");
+  server->getBuilder().Clear();
   return FoxgloveStudio_publish;
 }

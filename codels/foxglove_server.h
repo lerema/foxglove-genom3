@@ -139,7 +139,7 @@ namespace foxglove
             channel.topic = topic_name;
             channel.encoding = "flatbuffer";
             channel.schemaName = schema_name;
-            channel.schema = foxglove::base64Encode(getFileContents(schema_.getSchemaDefinitionPath(SchemaDefinition::SceneUpdate)));
+            channel.schema = foxglove::base64Encode(getFileContents(schema_.getSchemaDefinitionPath(schema_name)));
 
             channels_.push_back(channel);
 
@@ -173,12 +173,16 @@ namespace foxglove
                                 std::cerr << "received signal " << sig << ", shutting down" << std::endl; });
         }
 
-        void sendData(const std::string &topic_name, const std::string &data)
+        flatbuffers::FlatBufferBuilder &getBuilder()
+        {
+            return builder_;
+        }
+
+        template <typename T>
+        void sendData(const std::string &topic_name, const T &data)
         {
             const auto now = nanosecondsSinceEpoch();
             auto timestamp = foxglove::Time(now / 1'000'000'000, now % 1'000'000'000);
-
-            builder_.Clear();
 
             auto pose = foxglove::CreatePose(
                 builder_, foxglove::CreateVector3(builder_, 2, 0, 0),
