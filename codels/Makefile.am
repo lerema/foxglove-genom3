@@ -9,6 +9,7 @@ libFoxgloveStudio_codels_la_SOURCES += foxglove/*.h
 libFoxgloveStudio_codels_la_SOURCES += base64.cc
 libFoxgloveStudio_codels_la_SOURCES += serialization.cc
 libFoxgloveStudio_codels_la_SOURCES += parameter.cc
+libFoxgloveStudio_codels_la_SOURCES += convertor.cc
 
 libFoxgloveStudio_codels_la_CPPFLAGS =	$(requires_CFLAGS) --std=c++17
 libFoxgloveStudio_codels_la_LIBADD   =	$(requires_LIBS)

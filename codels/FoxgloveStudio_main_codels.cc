@@ -1,11 +1,12 @@
 
 #include "acFoxgloveStudio.h"
-
 #include "FoxgloveStudio_c_types.h"
+
 #include "foxglove_server.h"
-#include "foxglove/generated/RawImage_generated.h"
+#include "convertor.h"
 
 std::unique_ptr<foxglove::FoxgloveWebsocketServer> server = std::make_unique<foxglove::FoxgloveWebsocketServer>();
+std::unique_ptr<Convertor> convertor = std::make_unique<Convertor>(server->getBuilder());
 
 /* --- Task main -------------------------------------------------------- */
 
@@ -107,14 +108,8 @@ publish_data(const FoxgloveStudio_ids *ids,
 
   // Create flatbuffer raw image
   auto timestamp = foxglove::Time(image_frame->ts.sec, image_frame->ts.nsec);
-  auto image = foxglove::CreateRawImage(server->getBuilder(),
-                                        &timestamp,
-                                        server->getBuilder().CreateString("camera"),
-                                        image_frame->width,
-                                        image_frame->height,
-                                        server->getBuilder().CreateString("rgb8"),
-                                        image_frame->width * 3,
-                                        server->getBuilder().CreateVector<uint8_t>(image_frame->pixels._buffer, image_frame->pixels._length));
+  auto image = convertor->convert(image_frame);
+
   server->sendData("frame", image, image_frame->ts.sec * 1000000000 + image_frame->ts.nsec);
 
   server->getBuilder().Clear();
