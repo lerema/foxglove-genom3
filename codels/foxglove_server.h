@@ -84,6 +84,9 @@ namespace foxglove
 
         FoxgloveWebsocketServer()
         {
+            // Add server options
+            options_.sendBufferLimitBytes = 4000000000;
+
             const auto logHandler = [](foxglove::WebSocketLogLevel, char const *msg)
             {
                 std::cout << msg << std::endl;

@@ -19,5 +19,5 @@ flatbuffers::Offset<foxglove::RawImage> Convertor::convert(const or_sensor_frame
                                     frame->height,
                                     builder_.CreateString("rgb8"),
                                     frame->width * 3,
-                                    builder_.CreateVector<uint8_t>(frame->pixels._buffer, frame->pixels._length));
+                                    builder_.CreateVector(frame->pixels._buffer, frame->pixels._length));
 }
