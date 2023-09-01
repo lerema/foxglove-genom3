@@ -13,7 +13,7 @@ public:
     Convertor(flatbuffers::FlatBufferBuilder &builder);
     ~Convertor();
 
-    flatbuffers::Offset<foxglove::RawImage> convert(const or_sensor_frame *frame);
+    flatbuffers::Offset<foxglove::RawImage> *convert(const or_sensor_frame *frame);
     // foxglove::Pose *convert(const or_pose_estimator_frame *frame, const genom_context self);
 
 private:

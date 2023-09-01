@@ -86,6 +86,7 @@ namespace foxglove
         {
             // Add server options
             options_.sendBufferLimitBytes = 4000000000;
+            options_.useCompression = true;
 
             const auto logHandler = [](foxglove::WebSocketLogLevel, char const *msg)
             {
@@ -187,6 +188,7 @@ namespace foxglove
 
             auto chanId = channel_ids_map_.at(topic_name);
             server_->broadcastMessage(chanId, now, builder_.GetBufferPointer(), builder_.GetSize());
+            builder_.Clear();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }

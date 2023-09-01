@@ -110,7 +110,10 @@ publish_data(const FoxgloveStudio_ids *ids,
   auto timestamp = foxglove::Time(image_frame->ts.sec, image_frame->ts.nsec);
   auto image = convertor->convert(image_frame);
 
-  server->sendData("frame", image, image_frame->ts.sec * 1000000000 + image_frame->ts.nsec);
+  server->sendData("frame", *image, image_frame->ts.sec * 1000000000 + image_frame->ts.nsec);
+
+  // Release frame
+  delete image, image_frame;
 
   server->getBuilder().Clear();
   return FoxgloveStudio_publish;
