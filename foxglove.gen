@@ -61,21 +61,18 @@ component FoxgloveStudio {
   port multiple in or::sensor::frame frames {
     doc "The image frame port.";
   };
-  port in or::sensor::frame frame {
-    doc "The image frame port.";
-  };
 
   /* ------------------ TASK DEFINITION -------------------- */
   task main {
     doc "Publish to foxglove studio.";
 
-    codel<start> wait_for_ports(inout ::ids, in frame)
+    codel<start> wait_for_ports(inout ::ids, in frames)
         yield server, pause::start;
     codel<server> setup_server_configuration(in ::ids)
         yield setup;
-    codel<setup> setup_port_serialization(in ::ids, in frame)
+    codel<setup> setup_port_serialization(in ::ids, in frames)
         yield publish, start;
-    codel<publish> publish_data(in ::ids, in frame)
+    codel<publish> publish_data(in ::ids, in frames)
         yield publish, pause::start;
 
     throw e_BAD_CONFIG, e_BAD_PORT, e_OPENCV_ERROR, e_OUT_OF_MEM;
@@ -86,7 +83,7 @@ component FoxgloveStudio {
     doc "Add a port to the list of ports to be published.";
     task main;
 
-    codel<start> setup_port_info(in port_name, in port_type, ids out ports, in frame)
+    codel<start> setup_port_info(in port_name, in port_type, ids out ports, in frames)
         yield ether;
 
     throws e_BAD_PORT, e_OUT_OF_MEM;

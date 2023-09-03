@@ -108,7 +108,7 @@ a|.Throws
 a|.Context
 [disc]
   * In task `<<main>>`
-  * Reads port `<<frame>>`
+  * Reads port `<<frames>>`
 |===
 
 Add a port to the list of ports to be published.
@@ -236,7 +236,7 @@ Stop the foxglove server.
 a|.Context
 [disc]
   * Free running
-* Reads port `<<frame>>`
+* Reads port `<<frames>>`
 a|.Throws
 [disc]
  * `exception ::FoxgloveStudio::e_BAD_CONFIG`

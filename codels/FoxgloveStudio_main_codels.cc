@@ -19,29 +19,37 @@ std::unique_ptr<Convertor> convertor = std::make_unique<Convertor>(server->getBu
  */
 genom_event
 wait_for_ports(FoxgloveStudio_ids *ids,
-               const FoxgloveStudio_frame *frame,
+               const FoxgloveStudio_frames *frames,
                const genom_context self)
 {
-  //   // Check if there are any input ports connected
-  // if (ids->ports._length == 0)
-  // {
-  //   return FoxgloveStudio_pause_start;
-  // }
-
-  // // Print out the ports
-  // for (int i = 0; i < ids->ports._length; i++)
-  // {
-  //   printf("Port %d: %s\n", i, ids->ports._buffer[i].name);
-  // }
-
-  if (!ids->start_foxglove_server)
+  // Check if there are any input ports connected
+  if (ids->ports._length == 0)
   {
     return FoxgloveStudio_pause_start;
   }
 
-  if (!((frame->read(self) == genom_ok) && frame->data(self)))
+  // Print out the ports
+  for (int i = 0; i < ids->ports._length; i++)
   {
-    std::cerr << "Failed to read frame" << std::endl;
+    printf("Port %d: %s\n", i, ids->ports._buffer[i].name);
+  }
+
+  // Wait for frame list based on types
+  for (uint8_t i = 0; i < ids->ports._length; i++)
+  {
+    FoxgloveStudio_Port port = ids->ports._buffer[i];
+    if (port.type == FoxgloveStudio_or_sensor_frame)
+    {
+      if (frames->read(port.name, self) != genom_ok)
+      {
+        std::cerr << "Failed to read frame " << port.name << std::endl;
+        return FoxgloveStudio_pause_start;
+      }
+    }
+  }
+
+  if (!ids->start_foxglove_server)
+  {
     return FoxgloveStudio_pause_start;
   }
 
@@ -72,10 +80,17 @@ setup_server_configuration(const FoxgloveStudio_ids *ids,
  */
 genom_event
 setup_port_serialization(const FoxgloveStudio_ids *ids,
-                         const FoxgloveStudio_frame *frame,
+                         const FoxgloveStudio_frames *frames,
                          const genom_context self)
 {
-  server->addChannel("frame", "foxglove.RawImage");
+  for (uint8_t i = 0; i < ids->ports._length; i++)
+  {
+    FoxgloveStudio_Port port = ids->ports._buffer[i];
+    if (port.type == FoxgloveStudio_or_sensor_frame)
+    {
+      server->addChannel(port.name, "foxglove.RawImage");
+    }
+  }
 
   server->addChannels();
 
@@ -91,62 +106,42 @@ setup_port_serialization(const FoxgloveStudio_ids *ids,
  */
 genom_event
 publish_data(const FoxgloveStudio_ids *ids,
-             const FoxgloveStudio_frame *frame,
+             const FoxgloveStudio_frames *frames,
              const genom_context self)
 {
-  // Read image frame
-  or_sensor_frame *image_frame;
-  if (frame->read(self) == genom_ok && frame->data(self))
+  for (uint8_t i = 0; i < ids->ports._length; i++)
   {
-    image_frame = frame->data(self);
+    // Read image frame
+    or_sensor_frame *image_frame;
+    FoxgloveStudio_Port port = ids->ports._buffer[i];
+    if (port.type == FoxgloveStudio_or_sensor_frame)
+    {
+      if (frames->read(port.name, self) == genom_ok)
+      {
+        image_frame = frames->data(port.name, self);
+      }
+      else
+      {
+        std::cerr << "Failed to read frame " << port.name << std::endl;
+        return FoxgloveStudio_publish;
+      }
+      // Create flatbuffer raw image
+      auto timestamp = foxglove::Time(image_frame->ts.sec, image_frame->ts.nsec);
+      auto image = convertor->convert(image_frame);
+
+      server->sendData(port.name, *image, image_frame->ts.sec * 1000000000 + image_frame->ts.nsec);
+
+      // Release frame
+      delete image, image_frame;
+
+      server->getBuilder().Clear();
+    }
   }
-  else
-  {
-    std::cerr << "Failed to read frame" << std::endl;
-    return FoxgloveStudio_publish;
-  }
 
-  // Create flatbuffer raw image
-  auto timestamp = foxglove::Time(image_frame->ts.sec, image_frame->ts.nsec);
-  auto image = convertor->convert(image_frame);
-
-  server->sendData("frame", *image, image_frame->ts.sec * 1000000000 + image_frame->ts.nsec);
-
-  // Release frame
-  delete image, image_frame;
-
-  server->getBuilder().Clear();
   return FoxgloveStudio_publish;
 }
 
 /* --- Activity add_port ------------------------------------------------ */
-
-/*
-Check if port exists in the list of ports and if it is of the correct type
-*/
-template <typename T>
-bool checkPort(const char port_name[128],
-               FoxgloveStudio_PortType port_type,
-               const sequence_FoxgloveStudio_Port *ports,
-               const genom_context self)
-{
-  for (int i = 0; i < ports->_length; i++)
-  {
-    if (strcmp(ports->_buffer[i].name, port_name) == 0)
-    {
-      if (ports->_buffer[i].type == port_type)
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    }
-  }
-
-  return false;
-}
 
 /** Codel setup_port_info of activity add_port.
  *
@@ -159,7 +154,7 @@ genom_event
 setup_port_info(const char port_name[128],
                 FoxgloveStudio_PortType port_type,
                 sequence_FoxgloveStudio_Port *ports,
-                const FoxgloveStudio_frame *frame,
+                const FoxgloveStudio_frames *frames,
                 const genom_context self)
 {
   if (genom_sequence_reserve(ports, ports->_length + 1))
@@ -177,13 +172,6 @@ setup_port_info(const char port_name[128],
       std::cerr << "Port already exists" << std::endl;
       return FoxgloveStudio_ether;
     }
-  }
-
-  // Check if the port exists
-  if (!checkPort<FoxgloveStudio_frame>(port_name, port_type, ports, self))
-  {
-    std::cerr << "Port does not exist" << std::endl;
-    return FoxgloveStudio_ether;
   }
 
   FoxgloveStudio_Port port;
