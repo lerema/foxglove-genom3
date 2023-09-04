@@ -39,7 +39,8 @@ component FoxgloveStudio {
 
   enum PortType {
     or_sensor_frame,
-    or_sensor_imu
+    or_sensor_imu,
+    or_sensor_magnetometer
   };
 
   struct Port {

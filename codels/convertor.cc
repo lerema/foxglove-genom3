@@ -49,3 +49,18 @@ flatbuffers::Offset<foxglove::Imu> *Convertor::convert(const or_pose_estimator_s
 
     return new flatbuffers::Offset<foxglove::Imu>(imu);
 }
+
+flatbuffers::Offset<foxglove::TimedVector3> *Convertor::convertToVec(const or_pose_estimator_state *state)
+{
+    auto timestamp = foxglove::Time(state->ts.sec, state->ts.nsec);
+    auto position = foxglove::CreateVector3(builder_,
+                                            state->att._value.qx,
+                                            state->att._value.qy,
+                                            state->att._value.qz);
+
+    auto timed_vector3 = foxglove::CreateTimedVector3(builder_,
+                                                      &timestamp,
+                                                      position);
+
+    return new flatbuffers::Offset<foxglove::TimedVector3>(timed_vector3);
+}

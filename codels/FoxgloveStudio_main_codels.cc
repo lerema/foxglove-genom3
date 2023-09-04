@@ -49,6 +49,14 @@ wait_for_ports(FoxgloveStudio_ids *ids,
         return FoxgloveStudio_pause_start;
       }
     }
+    else if (port.type == FoxgloveStudio_or_sensor_magnetometer)
+    {
+      if (measurements->read(port.name, self) != genom_ok)
+      {
+        std::cerr << "Failed to read measurement " << port.name << std::endl;
+        return FoxgloveStudio_pause_start;
+      }
+    }
   }
 
   if (!ids->start_foxglove_server)
@@ -97,6 +105,9 @@ setup_port_serialization(const FoxgloveStudio_ids *ids,
       break;
     case FoxgloveStudio_or_sensor_imu:
       server->addChannel(port.name, "foxglove.Imu");
+      break;
+    case FoxgloveStudio_or_sensor_magnetometer:
+      server->addChannel(port.name, "foxglove.TimedVector3");
       break;
     default:
       break;
@@ -153,7 +164,7 @@ publish_data(const FoxgloveStudio_ids *ids,
       if (measurements->read(port.name, self) == genom_ok)
       {
         or_pose_estimator_state *imu_frame = measurements->data(port.name, self);
-        auto imu = convertor->convert(imu_frame);
+        flatbuffers::Offset<foxglove::Imu> *imu = convertor->convert(imu_frame);
 
         server->sendData(port.name, *imu, imu_frame->ts.sec * 1000000000 + imu_frame->ts.nsec);
 
@@ -161,6 +172,15 @@ publish_data(const FoxgloveStudio_ids *ids,
         delete imu, imu_frame;
 
         server->getBuilder().Clear();
+      }
+      else if (measurements->read(port.name, self) == genom_ok)
+      {
+        or_pose_estimator_state *mag_frame = measurements->data(port.name, self);
+
+        flatbuffers::Offset<foxglove::TimedVector3> *mag = convertor->convertToVec(mag_frame);
+
+        server->sendData(port.name, *mag, mag_frame->ts.sec * 1000000000 + mag_frame->ts.nsec);
+        return FoxgloveStudio_publish;
       }
       else
       {

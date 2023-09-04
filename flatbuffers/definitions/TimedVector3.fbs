@@ -1,0 +1,11 @@
+include "Time.fbs";
+include "Vector3.fbs";
+
+namespace foxglove;
+
+table TimedVector3 {
+    time:Time;
+    vector:Vector3;
+}
+
+root_type TimedVector3;

@@ -120,7 +120,7 @@ a|.Inputs
 [disc]
  * `string<128>` `port_name` Genom port name
 
- * `enum ::FoxgloveStudio::PortType` `port_type` Genom port type ∈ { `or_sensor_frame`, `or_sensor_imu` }
+ * `enum ::FoxgloveStudio::PortType` `port_type` Genom port type ∈ { `or_sensor_frame`, `or_sensor_imu`, `or_sensor_magnetometer` }
 
 a|.Throws
 [disc]
