@@ -20,18 +20,13 @@ std::unique_ptr<Convertor> convertor = std::make_unique<Convertor>(server->getBu
 genom_event
 wait_for_ports(FoxgloveStudio_ids *ids,
                const FoxgloveStudio_frames *frames,
+               const FoxgloveStudio_measurements *measurements,
                const genom_context self)
 {
   // Check if there are any input ports connected
   if (ids->ports._length == 0)
   {
     return FoxgloveStudio_pause_start;
-  }
-
-  // Print out the ports
-  for (int i = 0; i < ids->ports._length; i++)
-  {
-    printf("Port %d: %s\n", i, ids->ports._buffer[i].name);
   }
 
   // Wait for frame list based on types
@@ -43,6 +38,14 @@ wait_for_ports(FoxgloveStudio_ids *ids,
       if (frames->read(port.name, self) != genom_ok)
       {
         std::cerr << "Failed to read frame " << port.name << std::endl;
+        return FoxgloveStudio_pause_start;
+      }
+    }
+    else if (port.type == FoxgloveStudio_or_sensor_imu)
+    {
+      if (measurements->read(port.name, self) != genom_ok)
+      {
+        std::cerr << "Failed to read measurement " << port.name << std::endl;
         return FoxgloveStudio_pause_start;
       }
     }
@@ -81,14 +84,22 @@ setup_server_configuration(const FoxgloveStudio_ids *ids,
 genom_event
 setup_port_serialization(const FoxgloveStudio_ids *ids,
                          const FoxgloveStudio_frames *frames,
+                         const FoxgloveStudio_measurements *measurements,
                          const genom_context self)
 {
   for (uint8_t i = 0; i < ids->ports._length; i++)
   {
     FoxgloveStudio_Port port = ids->ports._buffer[i];
-    if (port.type == FoxgloveStudio_or_sensor_frame)
+    switch (port.type)
     {
+    case FoxgloveStudio_or_sensor_frame:
       server->addChannel(port.name, "foxglove.RawImage");
+      break;
+    case FoxgloveStudio_or_sensor_imu:
+      server->addChannel(port.name, "foxglove.Imu");
+      break;
+    default:
+      break;
     }
   }
 
@@ -107,6 +118,7 @@ setup_port_serialization(const FoxgloveStudio_ids *ids,
 genom_event
 publish_data(const FoxgloveStudio_ids *ids,
              const FoxgloveStudio_frames *frames,
+             const FoxgloveStudio_measurements *measurements,
              const genom_context self)
 {
   for (uint8_t i = 0; i < ids->ports._length; i++)
@@ -135,6 +147,26 @@ publish_data(const FoxgloveStudio_ids *ids,
       delete image, image_frame;
 
       server->getBuilder().Clear();
+    }
+    else if (port.type == FoxgloveStudio_or_sensor_imu)
+    {
+      if (measurements->read(port.name, self) == genom_ok)
+      {
+        or_pose_estimator_state *imu_frame = measurements->data(port.name, self);
+        auto imu = convertor->convert(imu_frame);
+
+        server->sendData(port.name, *imu, imu_frame->ts.sec * 1000000000 + imu_frame->ts.nsec);
+
+        // Release frame
+        delete imu, imu_frame;
+
+        server->getBuilder().Clear();
+      }
+      else
+      {
+        std::cerr << "Failed to read measurement " << port.name << std::endl;
+        return FoxgloveStudio_publish;
+      }
     }
   }
 

@@ -23,3 +23,29 @@ flatbuffers::Offset<foxglove::RawImage> *Convertor::convert(const or_sensor_fram
 
     return new flatbuffers::Offset<foxglove::RawImage>(image);
 }
+
+flatbuffers::Offset<foxglove::Imu> *Convertor::convert(const or_pose_estimator_state *state)
+{
+    auto timestamp = foxglove::Time(state->ts.sec, state->ts.nsec);
+    auto orientation = foxglove::CreateQuaternion(builder_,
+                                                  state->att._value.qx,
+                                                  state->att._value.qy,
+                                                  state->att._value.qz,
+                                                  state->att._value.qw);
+    auto angular_velocity = foxglove::CreateVector3(builder_,
+                                                    state->avel._value.wx,
+                                                    state->avel._value.wy,
+                                                    state->avel._value.wz);
+    auto linear_acceleration = foxglove::CreateVector3(builder_,
+                                                       state->acc._value.ax,
+                                                       state->acc._value.ay,
+                                                       state->acc._value.az);
+
+    auto imu = foxglove::CreateImu(builder_,
+                                   &timestamp,
+                                   orientation,
+                                   angular_velocity,
+                                   linear_acceleration);
+
+    return new flatbuffers::Offset<foxglove::Imu>(imu);
+}

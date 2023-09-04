@@ -6,6 +6,7 @@
 
 #include "foxglove/generated/RawImage_generated.h"
 #include "foxglove/generated/Pose_generated.h"
+#include "foxglove/generated/Imu_generated.h"
 
 class Convertor
 {
@@ -15,6 +16,7 @@ public:
 
     flatbuffers::Offset<foxglove::RawImage> *convert(const or_sensor_frame *frame);
     // foxglove::Pose *convert(const or_pose_estimator_frame *frame, const genom_context self);
+    flatbuffers::Offset<foxglove::Imu> *convert(const or_pose_estimator_state *state);
 
 private:
     flatbuffers::FlatBufferBuilder &builder_;

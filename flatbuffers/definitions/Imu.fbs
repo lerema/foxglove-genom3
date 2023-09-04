@@ -1,0 +1,15 @@
+include "Time.fbs";
+include "Quaternion.fbs";
+include "Vector3.fbs";
+
+namespace foxglove;
+
+// A single imu sample
+table Imu {
+  timestamp: Time;
+  orientation: Quaternion;
+  angular_velocity: Vector3;
+  linear_acceleration: Vector3;
+}
+
+root_type Imu;

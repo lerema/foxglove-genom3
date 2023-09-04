@@ -20,6 +20,7 @@
 #pragma require "vision-idl"
 
 #include "or/sensor/camera.gen"
+#include "or/pose/pose_estimator.gen"
 
 /* -------------------------- MODULE DECLARATION --------------------------- */
 component FoxgloveStudio {
@@ -37,7 +38,8 @@ component FoxgloveStudio {
   exception e_BAD_CONFIG { short code; string<128> message; };
 
   enum PortType {
-    or_sensor_frame
+    or_sensor_frame,
+    or_sensor_imu
   };
 
   struct Port {
@@ -62,17 +64,22 @@ component FoxgloveStudio {
     doc "The image frame port.";
   };
 
+  // Sensor
+  port multiple in or_pose_estimator::state measurements {
+    doc "The sensor measurements.";
+  };
+
   /* ------------------ TASK DEFINITION -------------------- */
   task main {
     doc "Publish to foxglove studio.";
 
-    codel<start> wait_for_ports(inout ::ids, in frames)
+    codel<start> wait_for_ports(inout ::ids, in frames, in measurements)
         yield server, pause::start;
     codel<server> setup_server_configuration(in ::ids)
         yield setup;
-    codel<setup> setup_port_serialization(in ::ids, in frames)
+    codel<setup> setup_port_serialization(in ::ids, in frames, in measurements)
         yield publish, start;
-    codel<publish> publish_data(in ::ids, in frames)
+    codel<publish> publish_data(in ::ids, in frames, in measurements)
         yield publish, pause::start;
 
     throw e_BAD_CONFIG, e_BAD_PORT, e_OPENCV_ERROR, e_OUT_OF_MEM;
