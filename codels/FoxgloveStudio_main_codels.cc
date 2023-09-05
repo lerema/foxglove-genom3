@@ -101,7 +101,7 @@ setup_port_serialization(const FoxgloveStudio_ids *ids,
     switch (port.type)
     {
     case FoxgloveStudio_or_sensor_frame:
-      server->addChannel(port.name, "foxglove.RawImage");
+      server->addChannel(port.name, "foxglove.CompressedImage");
       break;
     case FoxgloveStudio_or_sensor_imu:
       server->addChannel(port.name, "foxglove.Imu");
@@ -150,7 +150,7 @@ publish_data(const FoxgloveStudio_ids *ids,
       }
       // Create flatbuffer raw image
       auto timestamp = foxglove::Time(image_frame->ts.sec, image_frame->ts.nsec);
-      auto image = convertor->convert(image_frame);
+      flatbuffers::Offset<foxglove::CompressedImage> *image = convertor->convert(image_frame);
 
       server->sendData(port.name, *image, image_frame->ts.sec * 1000000000 + image_frame->ts.nsec);
 

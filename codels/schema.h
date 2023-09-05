@@ -34,6 +34,7 @@ enum class SchemaDefinition
 {
     SceneUpdate,
     RawImage,
+    CompressedImage,
     Pose,
     Imu,
     TimedVector3,
@@ -61,6 +62,8 @@ struct Schema
             return schema_path + "/Imu.bfbs";
         case SchemaDefinition::TimedVector3:
             return schema_path + "/TimedVector3.bfbs";
+        case SchemaDefinition::CompressedImage:
+            return schema_path + "/CompressedImage.bfbs";
         default:
             throw std::runtime_error("Schema definition not found.");
         }
@@ -75,6 +78,10 @@ struct Schema
         else if (schema_definition == "foxglove.RawImage")
         {
             return schema_path + "/RawImage.bfbs";
+        }
+        else if (schema_definition == "foxglove.CompressedImage")
+        {
+            return schema_path + "/CompressedImage.bfbs";
         }
         else if (schema_definition == "foxglove.Pose")
         {

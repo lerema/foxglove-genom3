@@ -1,4 +1,5 @@
 #include "convertor.h"
+#include "opencv2/opencv.hpp"
 
 Convertor::~Convertor()
 {
@@ -8,7 +9,7 @@ Convertor::Convertor(flatbuffers::FlatBufferBuilder &builder) : builder_(builder
 {
 }
 
-flatbuffers::Offset<foxglove::RawImage> *Convertor::convert(const or_sensor_frame *frame)
+flatbuffers::Offset<foxglove::RawImage> *Convertor::convertToRawImage(const or_sensor_frame *frame)
 {
     // TODO: Support all image formats
     auto timestamp = foxglove::Time(frame->ts.sec, frame->ts.nsec);
@@ -63,4 +64,28 @@ flatbuffers::Offset<foxglove::TimedVector3> *Convertor::convertToVec(const or_po
                                                       position);
 
     return new flatbuffers::Offset<foxglove::TimedVector3>(timed_vector3);
+}
+
+flatbuffers::Offset<foxglove::CompressedImage> *Convertor::convert(const or_sensor_frame *frame)
+{
+    // Convert the buffer to a cv::Mat
+    cv::Mat raw_image(frame->height, frame->width, CV_8UC3, frame->pixels._buffer);
+    cv::cvtColor(raw_image, raw_image, cv::COLOR_BGR2RGB);
+
+    // Compression to 50% of original size
+    std::vector<uint8_t> compressed;
+    std::vector<int> compression_params;
+    compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
+    compression_params.push_back(50);
+
+    cv::imencode(".jpeg", raw_image, compressed, compression_params);
+
+    auto timestamp = foxglove::Time(frame->ts.sec, frame->ts.nsec);
+    auto image = foxglove::CreateCompressedImage(builder_,
+                                                 &timestamp,
+                                                 builder_.CreateString("camera"),
+                                                 builder_.CreateVector(compressed),
+                                                 builder_.CreateString("jpeg"));
+
+    return new flatbuffers::Offset<foxglove::CompressedImage>(image);
 }

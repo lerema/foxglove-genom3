@@ -28,7 +28,7 @@ fi
 sudo apt install -y libwebsocketpp-dev nlohmann-json3-dev
 
 flatc --schema -b -o flatbuffers/schema flatbuffers/definitions/*.fbs
-autoreconf -vi
+autoreconf -vif
 
 # Compile flatbuffers
 flatc --cpp -o codels/foxglove/generated flatbuffers/definitions/*.fbs

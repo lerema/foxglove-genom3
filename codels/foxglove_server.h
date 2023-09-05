@@ -140,7 +140,7 @@ namespace foxglove
 
             channels_.push_back(channel);
 
-            std::cout << "added channel " << topic_name << std::endl;
+            std::cout << "added channel " << topic_name << " with schema " << schema_name << std::endl;
         }
 
         void addChannels()
