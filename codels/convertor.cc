@@ -89,3 +89,27 @@ flatbuffers::Offset<foxglove::CompressedImage> *Convertor::convert(const or_sens
 
     return new flatbuffers::Offset<foxglove::CompressedImage>(image);
 }
+
+flatbuffers::Offset<foxglove::PoseInFrame> *Convertor::convertToPose(const or_pose_estimator_state *state)
+{
+    auto timestamp = foxglove::Time(state->ts.sec, state->ts.nsec);
+    auto position = foxglove::CreateVector3(builder_,
+                                            state->pos._value.x,
+                                            state->pos._value.y,
+                                            state->pos._value.z);
+    auto orientation = foxglove::CreateQuaternion(builder_,
+                                                  state->att._value.qx,
+                                                  state->att._value.qy,
+                                                  state->att._value.qz,
+                                                  state->att._value.qw);
+
+    auto pose = foxglove::CreatePose(builder_,
+                                     position,
+                                     orientation);
+    auto pose_in_frame = foxglove::CreatePoseInFrame(builder_,
+                                                     &timestamp,
+                                                     builder_.CreateString("robot"),
+                                                     pose);
+
+    return new flatbuffers::Offset<foxglove::PoseInFrame>(pose_in_frame);
+}

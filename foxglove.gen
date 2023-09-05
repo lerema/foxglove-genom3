@@ -40,7 +40,8 @@ component FoxgloveStudio {
   enum PortType {
     or_sensor_frame,
     or_sensor_imu,
-    or_sensor_magnetometer
+    or_sensor_magnetometer,
+    or_pose_estimator_state
   };
 
   struct Port {
@@ -70,17 +71,22 @@ component FoxgloveStudio {
     doc "The sensor measurements.";
   };
 
+  // State
+  port multiple in or_pose_estimator::state states {
+    doc "The pose estimation states.";
+  };
+
   /* ------------------ TASK DEFINITION -------------------- */
   task main {
     doc "Publish to foxglove studio.";
 
-    codel<start> wait_for_ports(inout ::ids, in frames, in measurements)
+    codel<start> wait_for_ports(ids in ports, ids in start_foxglove_server, in frames, in measurements, in states)
         yield server, pause::start;
-    codel<server> setup_server_configuration(in ::ids)
+    codel<server> setup_server_configuration(ids in server_ip, ids in server_port)
         yield setup;
-    codel<setup> setup_port_serialization(in ::ids, in frames, in measurements)
+    codel<setup> setup_port_serialization(ids in ports)
         yield publish, start;
-    codel<publish> publish_data(in ::ids, in frames, in measurements)
+    codel<publish> publish_data(ids in ports, in frames, in measurements, in states)
         yield publish, pause::start;
 
     throw e_BAD_CONFIG, e_BAD_PORT, e_OPENCV_ERROR, e_OUT_OF_MEM;

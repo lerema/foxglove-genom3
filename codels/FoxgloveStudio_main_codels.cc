@@ -18,21 +18,23 @@ std::unique_ptr<Convertor> convertor = std::make_unique<Convertor>(server->getBu
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
 genom_event
-wait_for_ports(FoxgloveStudio_ids *ids,
+wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
+               bool start_foxglove_server,
                const FoxgloveStudio_frames *frames,
                const FoxgloveStudio_measurements *measurements,
+               const FoxgloveStudio_states *states,
                const genom_context self)
 {
   // Check if there are any input ports connected
-  if (ids->ports._length == 0)
+  if (ports->_length == 0)
   {
     return FoxgloveStudio_pause_start;
   }
 
   // Wait for frame list based on types
-  for (uint8_t i = 0; i < ids->ports._length; i++)
+  for (uint8_t i = 0; i < ports->_length; i++)
   {
-    FoxgloveStudio_Port port = ids->ports._buffer[i];
+    FoxgloveStudio_Port port = ports->_buffer[i];
     if (port.type == FoxgloveStudio_or_sensor_frame)
     {
       if (frames->read(port.name, self) != genom_ok)
@@ -57,9 +59,17 @@ wait_for_ports(FoxgloveStudio_ids *ids,
         return FoxgloveStudio_pause_start;
       }
     }
+    else if (port.type == FoxgloveStudio_or_pose_estimator_state)
+    {
+      if (states->read(port.name, self) != genom_ok)
+      {
+        std::cerr << "Failed to read state " << port.name << std::endl;
+        return FoxgloveStudio_pause_start;
+      }
+    }
   }
 
-  if (!ids->start_foxglove_server)
+  if (!start_foxglove_server)
   {
     return FoxgloveStudio_pause_start;
   }
@@ -75,7 +85,7 @@ wait_for_ports(FoxgloveStudio_ids *ids,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
 genom_event
-setup_server_configuration(const FoxgloveStudio_ids *ids,
+setup_server_configuration(const char *server_ip, uint16_t server_port,
                            const genom_context self)
 {
   server->startServer("0.0.0.0", 8765);
@@ -90,14 +100,12 @@ setup_server_configuration(const FoxgloveStudio_ids *ids,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
 genom_event
-setup_port_serialization(const FoxgloveStudio_ids *ids,
-                         const FoxgloveStudio_frames *frames,
-                         const FoxgloveStudio_measurements *measurements,
+setup_port_serialization(const sequence_FoxgloveStudio_Port *ports,
                          const genom_context self)
 {
-  for (uint8_t i = 0; i < ids->ports._length; i++)
+  for (uint8_t i = 0; i < ports->_length; i++)
   {
-    FoxgloveStudio_Port port = ids->ports._buffer[i];
+    FoxgloveStudio_Port port = ports->_buffer[i];
     switch (port.type)
     {
     case FoxgloveStudio_or_sensor_frame:
@@ -108,6 +116,9 @@ setup_port_serialization(const FoxgloveStudio_ids *ids,
       break;
     case FoxgloveStudio_or_sensor_magnetometer:
       server->addChannel(port.name, "foxglove.TimedVector3");
+      break;
+    case FoxgloveStudio_or_pose_estimator_state:
+      server->addChannel(port.name, "foxglove.PoseInFrame");
       break;
     default:
       break;
@@ -127,16 +138,17 @@ setup_port_serialization(const FoxgloveStudio_ids *ids,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
 genom_event
-publish_data(const FoxgloveStudio_ids *ids,
+publish_data(const sequence_FoxgloveStudio_Port *ports,
              const FoxgloveStudio_frames *frames,
              const FoxgloveStudio_measurements *measurements,
+             const FoxgloveStudio_states *states,
              const genom_context self)
 {
-  for (uint8_t i = 0; i < ids->ports._length; i++)
+  for (uint8_t i = 0; i < ports->_length; i++)
   {
     // Read image frame
     or_sensor_frame *image_frame;
-    FoxgloveStudio_Port port = ids->ports._buffer[i];
+    FoxgloveStudio_Port port = ports->_buffer[i];
     if (port.type == FoxgloveStudio_or_sensor_frame)
     {
       if (frames->read(port.name, self) == genom_ok)
@@ -181,6 +193,18 @@ publish_data(const FoxgloveStudio_ids *ids,
 
         server->sendData(port.name, *mag, mag_frame->ts.sec * 1000000000 + mag_frame->ts.nsec);
         return FoxgloveStudio_publish;
+      }
+      else if (states->read(port.name, self) == genom_ok)
+      {
+        or_pose_estimator_state *state_frame = states->data(port.name, self);
+        flatbuffers::Offset<foxglove::PoseInFrame> *state = convertor->convertToPose(state_frame);
+
+        server->sendData(port.name, *state, state_frame->ts.sec * 1000000000 + state_frame->ts.nsec);
+
+        // Release frame
+        delete state, state_frame;
+
+        server->getBuilder().Clear();
       }
       else
       {
