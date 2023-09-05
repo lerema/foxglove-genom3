@@ -50,15 +50,15 @@ The image frame port.
 
 '''
 
-[[measurements]]
-=== measurements (multiple in)
+[[measure]]
+=== measure (multiple in)
 
 
 [role="small", width="50%", float="right", cols="1"]
 |===
 a|.Data structure
 [disc]
- * `struct ::or_pose_estimator::state` `measurements`
+ * `struct ::or_pose_estimator::state` `measure`
  ** `struct ::or::time::ts` `ts`
  *** `long` `sec`
  *** `long` `nsec`
@@ -330,7 +330,7 @@ Stop the foxglove server.
 a|.Context
 [disc]
   * Free running
-* Reads port `<<measurements>>`
+* Reads port `<<measure>>`
 * Reads port `<<frames>>`
 * Reads port `<<states>>`
 a|.Throws

@@ -67,7 +67,7 @@ component FoxgloveStudio {
   };
 
   // Sensor
-  port multiple in or_pose_estimator::state measurements {
+  port multiple in or_pose_estimator::state measure {
     doc "The sensor measurements.";
   };
 
@@ -80,13 +80,13 @@ component FoxgloveStudio {
   task main {
     doc "Publish to foxglove studio.";
 
-    codel<start> wait_for_ports(ids in ports, ids in start_foxglove_server, in frames, in measurements, in states)
+    codel<start> wait_for_ports(ids in ports, ids in start_foxglove_server, in frames, in measure, in states)
         yield server, pause::start;
     codel<server> setup_server_configuration(ids in server_ip, ids in server_port)
         yield setup;
     codel<setup> setup_port_serialization(ids in ports)
         yield publish, start;
-    codel<publish> publish_data(ids in ports, in frames, in measurements, in states)
+    codel<publish> publish_data(ids in ports, in frames, in measure, in states)
         yield publish, pause::start;
 
     throw e_BAD_CONFIG, e_BAD_PORT, e_OPENCV_ERROR, e_OUT_OF_MEM;

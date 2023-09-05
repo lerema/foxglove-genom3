@@ -21,7 +21,7 @@ genom_event
 wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
                bool start_foxglove_server,
                const FoxgloveStudio_frames *frames,
-               const FoxgloveStudio_measurements *measurements,
+               const FoxgloveStudio_measure *measure,
                const FoxgloveStudio_states *states,
                const genom_context self)
 {
@@ -45,7 +45,7 @@ wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
     }
     else if (port.type == FoxgloveStudio_or_sensor_imu)
     {
-      if (measurements->read(port.name, self) != genom_ok)
+      if (measure->read(port.name, self) != genom_ok)
       {
         std::cerr << "Failed to read measurement " << port.name << std::endl;
         return FoxgloveStudio_pause_start;
@@ -53,7 +53,7 @@ wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
     }
     else if (port.type == FoxgloveStudio_or_sensor_magnetometer)
     {
-      if (measurements->read(port.name, self) != genom_ok)
+      if (measure->read(port.name, self) != genom_ok)
       {
         std::cerr << "Failed to read measurement " << port.name << std::endl;
         return FoxgloveStudio_pause_start;
@@ -140,42 +140,41 @@ setup_port_serialization(const sequence_FoxgloveStudio_Port *ports,
 genom_event
 publish_data(const sequence_FoxgloveStudio_Port *ports,
              const FoxgloveStudio_frames *frames,
-             const FoxgloveStudio_measurements *measurements,
+             const FoxgloveStudio_measure *measure,
              const FoxgloveStudio_states *states,
              const genom_context self)
 {
   for (uint8_t i = 0; i < ports->_length; i++)
   {
     // Read image frame
-    or_sensor_frame *image_frame;
     FoxgloveStudio_Port port = ports->_buffer[i];
-    if (port.type == FoxgloveStudio_or_sensor_frame)
+        if (port.type == FoxgloveStudio_or_sensor_frame)
     {
+      or_sensor_frame *image_frame;
       if (frames->read(port.name, self) == genom_ok)
       {
         image_frame = frames->data(port.name, self);
+        // Create flatbuffer raw image
+        auto timestamp = foxglove::Time(image_frame->ts.sec, image_frame->ts.nsec);
+        flatbuffers::Offset<foxglove::CompressedImage> *image = convertor->convert(image_frame);
+
+        server->sendData(port.name, *image, image_frame->ts.sec * 1000000000 + image_frame->ts.nsec);
+
+        // Release frame
+        delete image, image_frame;
+
+        server->getBuilder().Clear();
       }
       else
       {
         std::cerr << "Failed to read frame " << port.name << std::endl;
-        return FoxgloveStudio_publish;
       }
-      // Create flatbuffer raw image
-      auto timestamp = foxglove::Time(image_frame->ts.sec, image_frame->ts.nsec);
-      flatbuffers::Offset<foxglove::CompressedImage> *image = convertor->convert(image_frame);
-
-      server->sendData(port.name, *image, image_frame->ts.sec * 1000000000 + image_frame->ts.nsec);
-
-      // Release frame
-      delete image, image_frame;
-
-      server->getBuilder().Clear();
     }
     else if (port.type == FoxgloveStudio_or_sensor_imu)
     {
-      if (measurements->read(port.name, self) == genom_ok)
+      if (measure->read(port.name, self) == genom_ok)
       {
-        or_pose_estimator_state *imu_frame = measurements->data(port.name, self);
+        or_pose_estimator_state *imu_frame = measure->data(port.name, self);
         flatbuffers::Offset<foxglove::Imu> *imu = convertor->convert(imu_frame);
 
         server->sendData(port.name, *imu, imu_frame->ts.sec * 1000000000 + imu_frame->ts.nsec);
@@ -185,16 +184,26 @@ publish_data(const sequence_FoxgloveStudio_Port *ports,
 
         server->getBuilder().Clear();
       }
-      else if (measurements->read(port.name, self) == genom_ok)
+      else
+        std::cerr << "Failed to read measurement " << port.name << std::endl;
+    }
+    else if (port.type == FoxgloveStudio_or_sensor_magnetometer)
+    {
+      if (measure->read(port.name, self) == genom_ok)
       {
-        or_pose_estimator_state *mag_frame = measurements->data(port.name, self);
+        or_pose_estimator_state *mag_frame = measure->data(port.name, self);
 
         flatbuffers::Offset<foxglove::TimedVector3> *mag = convertor->convertToVec(mag_frame);
 
         server->sendData(port.name, *mag, mag_frame->ts.sec * 1000000000 + mag_frame->ts.nsec);
         return FoxgloveStudio_publish;
       }
-      else if (states->read(port.name, self) == genom_ok)
+      else
+        std::cerr << "Failed to read measurement " << port.name << std::endl;
+    }
+    else if (port.type == FoxgloveStudio_or_pose_estimator_state)
+    {
+      if (states->read(port.name, self) == genom_ok)
       {
         or_pose_estimator_state *state_frame = states->data(port.name, self);
         flatbuffers::Offset<foxglove::PoseInFrame> *state = convertor->convertToPose(state_frame);
@@ -207,10 +216,7 @@ publish_data(const sequence_FoxgloveStudio_Port *ports,
         server->getBuilder().Clear();
       }
       else
-      {
-        std::cerr << "Failed to read measurement " << port.name << std::endl;
-        return FoxgloveStudio_publish;
-      }
+        std::cerr << "Failed to read state " << port.name << std::endl;
     }
   }
 
