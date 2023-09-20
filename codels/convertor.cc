@@ -68,6 +68,18 @@ flatbuffers::Offset<foxglove::TimedVector3> *Convertor::convertToVec(const or_po
 
 flatbuffers::Offset<foxglove::CompressedImage> *Convertor::convert(const or_sensor_frame *frame)
 {
+    if (frame->compressed)
+    {
+      auto timestamp = foxglove::Time(frame->ts.sec, frame->ts.nsec);
+      std::vector<uint8_t> compressed = std::vector<uint8_t>(frame->pixels._buffer,frame->pixels._length);
+      auto image = foxglove::CreateCompressedImage(
+          builder_, &timestamp, builder_.CreateString("camera"),
+          builder_.CreateVector(compressed),
+          builder_.CreateString("jpeg"));
+
+      return new flatbuffers::Offset<foxglove::CompressedImage>(image);
+    }
+
     // Convert the buffer to a cv::Mat
     cv::Mat raw_image(frame->height, frame->width, CV_8UC3, frame->pixels._buffer);
     cv::cvtColor(raw_image, raw_image, cv::COLOR_BGR2RGB);
