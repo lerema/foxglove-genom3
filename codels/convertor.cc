@@ -71,7 +71,7 @@ flatbuffers::Offset<foxglove::CompressedImage> *Convertor::convert(const or_sens
     if (frame->compressed)
     {
       auto timestamp = foxglove::Time(frame->ts.sec, frame->ts.nsec);
-      std::vector<uint8_t> compressed = std::vector<uint8_t>(frame->pixels._buffer,frame->pixels._length);
+      std::vector<uint8_t> compressed = std::vector<uint8_t>(frame->pixels._buffer, frame->pixels._buffer + frame->pixels._length);
       auto image = foxglove::CreateCompressedImage(
           builder_, &timestamp, builder_.CreateString("camera"),
           builder_.CreateVector(compressed),

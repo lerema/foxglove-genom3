@@ -1,14 +1,19 @@
 # Example script for foxglove-genom3 in TCL. This code is not verified yet
 package require genomix
 
-set handle [genomix connect "localhost:8080"]
+genomix::localhost
 
-set PLUGINS_PATH "/plugins" ;# path to plugins directory
-$handle rpath $PLUGINS_PATH
-set foxglove [$handle load "FoxgloveStudio"]
+# set PLUGINS_PATH "/plugins" ;# path to plugins directory 
+genomix1 rpath  /home/shasthamsa/drone-experiment/lib/genom/pocolibs/plugins
+genomix1 load FoxgloveStudio
 
 # Add required ports to be able to connect to the plugin
-$foxglove connect_port "frames/d435/raw" "d435/frame/raw"
-$foxglove add_port "d435/rgb" "::FoxgloveStudio::on_sensor_frame"
+FoxgloveStudio::connect_port "frames/d435/raw" "d435/frame/raw"
+FoxgloveStudio::add_port "d435/raw" "::FoxgloveStudio::or_sensor_frame"
+FoxgloveStudio::connect_port "frames/d435/cc" "d435/frame/compressed"
+FoxgloveStudio::add_port "d435/cc" "::FoxgloveStudio::or_sensor_frame"
 
-$foxglove start_foxglove_server
+genomix1 load d435
+
+d435::connect 832112070817
+# FoxgloveStudio::start_foxglove_server
