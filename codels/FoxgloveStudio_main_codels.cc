@@ -22,6 +22,7 @@ wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
                bool start_foxglove_server,
                const FoxgloveStudio_frames *frames,
                const FoxgloveStudio_measure *measure,
+               const FoxgloveStudio_gps *gps,
                const FoxgloveStudio_states *states,
                const genom_context self)
 {
@@ -64,6 +65,14 @@ wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
       if (states->read(port.name, self) != genom_ok)
       {
         std::cerr << "Failed to read state " << port.name << std::endl;
+        return FoxgloveStudio_pause_start;
+      }
+    }
+    else if (port.type == FoxgloveStudio_or_gps)
+    {
+      if (gps->read(port.name, self) != genom_ok)
+      {
+        std::cerr << "Failed to read gps " << port.name << std::endl;
         return FoxgloveStudio_pause_start;
       }
     }
@@ -142,7 +151,7 @@ publish_data(const sequence_FoxgloveStudio_Port *ports,
              const FoxgloveStudio_frames *frames,
              const FoxgloveStudio_measure *measure,
              const FoxgloveStudio_states *states,
-             const genom_context self)
+             const FoxgloveStudio_gps *gps, const genom_context self)
 {
   for (uint8_t i = 0; i < ports->_length; i++)
   {
@@ -217,6 +226,23 @@ publish_data(const sequence_FoxgloveStudio_Port *ports,
       }
       else
         std::cerr << "Failed to read state " << port.name << std::endl;
+    }
+    else if (port.type == FoxgloveStudio_or_gps)
+    {
+      if (gps->read(port.name, self) == genom_ok)
+      {
+        FoxgloveStudio_gps *gps_frame = gps->data(port.name, self);
+        flatbuffers::Offset<foxglove::LocationFix> *gps = convertor->convert(gps_frame);
+
+        server->sendData(port.name, *gps, gps_frame->ts.sec * 1000000000 + gps_frame->ts.nsec);
+
+        // Release frame
+        delete gps, gps_frame;
+
+        server->getBuilder().Clear();
+      }
+      else
+        std::cerr << "Failed to read gps " << port.name << std::endl;
     }
   }
 
