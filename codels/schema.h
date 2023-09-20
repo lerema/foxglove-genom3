@@ -39,6 +39,7 @@ enum class SchemaDefinition
     Imu,
     TimedVector3,
     PoseInFrame,
+    LocationFix,
 
 };
 
@@ -67,6 +68,8 @@ struct Schema
             return schema_path + "/CompressedImage.bfbs";
         case SchemaDefinition::PoseInFrame:
             return schema_path + "/PoseInFrame.bfbs";
+        case SchemaDefinition::LocationFix:
+            return schema_path + "/LocationFix.bfbs";
         default:
             throw std::runtime_error("Schema definition not found.");
         }
@@ -101,6 +104,10 @@ struct Schema
         else if (schema_definition == "foxglove.TimedVector3")
         {
             return schema_path + "/TimedVector3.bfbs";
+        }
+        else if (schema_definition == "foxglove.LocationFix")
+        {
+            return schema_path + "/LocationFix.bfbs";
         }
         else
         {

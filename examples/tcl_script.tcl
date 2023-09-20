@@ -15,5 +15,6 @@ FoxgloveStudio::add_port "d435/cc" "::FoxgloveStudio::or_sensor_frame"
 
 genomix1 load d435
 
+d435::set_compression 50
 d435::connect 832112070817
 # FoxgloveStudio::start_foxglove_server

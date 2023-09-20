@@ -41,12 +41,90 @@ component FoxgloveStudio {
     or_sensor_frame,
     or_sensor_imu,
     or_sensor_magnetometer,
-    or_pose_estimator_state
+    or_pose_estimator_state,
+    or_sensor_gps
   };
 
   struct Port {
     string<128> name;
     PortType type;
+  };
+
+  enum clocksrc {
+    clock_local_coarse,
+    clock_local_ntp,
+    clock_utc_offset,
+    clock_utc
+  };
+
+  struct ntp_offset_s {
+    double offset, jitter;
+  };
+
+  enum frame_s {
+    frame_enu,
+    frame_nwu,
+    frame_ned
+  };
+
+  enum fix_s {
+    fix_none,
+    fix_interp,
+    fix_single,
+    fix_diff,
+    fix_rtk_float,
+    fix_rtk,
+    fix_fixed
+  };
+
+  enum monitor_op_s {
+    monitor_above,
+    monitor_below
+  };
+
+  struct llh_s {
+    double latitude;	/* geodetic, degrees */
+    double longitude;
+    double height;	/* above ellipsoid */
+  };
+
+  struct ecef_s {
+    double x, y, z;
+  };
+
+  struct enu_s {
+    double east, north, up;
+  };
+
+  struct noise_s {
+    double posxy_sigma, posz_sigma;
+    double velxy_sigma, velz_sigma;
+  };
+
+  struct param_s {
+    string<32> model;
+    double rate;
+    double ecutoff;
+    noise_s noise;
+    clocksrc tsmode;
+    frame_s frame;
+  };
+
+  struct satlist_s {
+    string<8> system;
+    sequence<unsigned short, 64> used;
+    sequence<unsigned short, 64> unused;
+  };
+
+  struct solution_s {
+    or::time::ts ts;	/* timestamp on local clock */
+    or::time::ts utc;	/* UTC timestamp */
+    fix_s fix;
+    llh_s llh;
+    enu_s pos, pos_sigma;
+    enu_s vel, vel_sigma;
+    unsigned short sats, totalsats;
+    sequence<satlist_s, 8> satlist;
   };
 
   /* -------------------------- IDS --------------------------- */
@@ -71,6 +149,10 @@ component FoxgloveStudio {
     doc "The sensor measurements.";
   };
 
+  port multiple in solution_s gps {
+    doc "The gps measurements.";
+  };
+
   // State
   port multiple in or_pose_estimator::state states {
     doc "The pose estimation states.";
@@ -80,13 +162,13 @@ component FoxgloveStudio {
   task main {
     doc "Publish to foxglove studio.";
 
-    codel<start> wait_for_ports(ids in ports, ids in start_foxglove_server, in frames, in measure, in states)
+    codel<start> wait_for_ports(ids in ports, ids in start_foxglove_server, in frames, in measure, in gps, in states)
         yield server, pause::start;
     codel<server> setup_server_configuration(ids in server_ip, ids in server_port)
         yield setup;
     codel<setup> setup_port_serialization(ids in ports)
         yield publish, start;
-    codel<publish> publish_data(ids in ports, in frames, in measure, in states)
+    codel<publish> publish_data(ids in ports, in frames, in measure, in states, in gps)
         yield publish, pause::start;
 
     throw e_BAD_CONFIG, e_BAD_PORT, e_OPENCV_ERROR, e_OUT_OF_MEM;

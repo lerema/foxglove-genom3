@@ -109,6 +109,55 @@ The sensor measurements.
 
 '''
 
+[[gps]]
+=== gps (multiple in)
+
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Data structure
+[disc]
+ * `struct ::FoxgloveStudio::solution_s` `gps`
+ ** `struct ::or::time::ts` `ts`
+ *** `long` `sec`
+ *** `long` `nsec`
+ ** `struct ::or::time::ts` `utc`
+ *** `long` `sec`
+ *** `long` `nsec`
+ ** `enum ::FoxgloveStudio::fix_s` `fix` ∈ { `fix_none`, `fix_interp`, `fix_single`, `fix_diff`, `fix_rtk_float`, `fix_rtk`, `fix_fixed` }
+ ** `struct ::FoxgloveStudio::llh_s` `llh`
+ *** `double` `latitude`
+ *** `double` `longitude`
+ *** `double` `height`
+ ** `struct ::FoxgloveStudio::enu_s` `pos`
+ *** `double` `east`
+ *** `double` `north`
+ *** `double` `up`
+ ** `struct ::FoxgloveStudio::enu_s` `pos_sigma`
+ *** `double` `east`
+ *** `double` `north`
+ *** `double` `up`
+ ** `struct ::FoxgloveStudio::enu_s` `vel`
+ *** `double` `east`
+ *** `double` `north`
+ *** `double` `up`
+ ** `struct ::FoxgloveStudio::enu_s` `vel_sigma`
+ *** `double` `east`
+ *** `double` `north`
+ *** `double` `up`
+ ** `unsigned short` `sats`
+ ** `unsigned short` `totalsats`
+ ** `sequence< struct ::FoxgloveStudio::satlist_s, 8 >` `satlist`
+ *** `string<8>` `system`
+ *** `sequence< unsigned short, 64 >` `used`
+ *** `sequence< unsigned short, 64 >` `unused`
+
+|===
+
+The gps measurements.
+
+'''
+
 [[states]]
 === states (multiple in)
 
@@ -179,7 +228,7 @@ a|.Inputs
 [disc]
  * `string<128>` `port_name` Genom port name
 
- * `enum ::FoxgloveStudio::PortType` `port_type` Genom port type ∈ { `or_sensor_frame`, `or_sensor_imu`, `or_sensor_magnetometer`, `or_pose_estimator_state` }
+ * `enum ::FoxgloveStudio::PortType` `port_type` Genom port type ∈ { `or_sensor_frame`, `or_sensor_imu`, `or_sensor_magnetometer`, `or_pose_estimator_state`, `or_sensor_gps` }
 
 a|.Throws
 [disc]
@@ -330,8 +379,9 @@ Stop the foxglove server.
 a|.Context
 [disc]
   * Free running
-* Reads port `<<measure>>`
 * Reads port `<<frames>>`
+* Reads port `<<measure>>`
+* Reads port `<<gps>>`
 * Reads port `<<states>>`
 a|.Throws
 [disc]
