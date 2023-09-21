@@ -126,24 +126,15 @@ flatbuffers::Offset<foxglove::PoseInFrame> *Convertor::convertToPose(const or_po
     return new flatbuffers::Offset<foxglove::PoseInFrame>(pose_in_frame);
 }
 
-flatbuffers::Offset<foxglove::LocationFix> *Convertor::convert(const FoxgloveStudio_gps *gps)
+flatbuffers::Offset<foxglove::LocationFix> *Convertor::convert(const FoxgloveStudio_solution_s *gps)
 {
     auto timestamp = foxglove::Time(gps->ts.sec, gps->ts.nsec);
-    auto position = foxglove::CreateVector3(builder_,
-                                            gps->latitude,
-                                            gps->longitude,
-                                            gps->altitude);
     auto location_fix = foxglove::CreateLocationFix(builder_,
                                                     &timestamp,
-                                                    position,
-                                                    gps->fix_type,
-                                                    gps->satellites_used,
-                                                    gps->hdop,
-                                                    gps->vdop,
-                                                    gps->pdop,
-                                                    gps->age,
-                                                    gps->course,
-                                                    gps->speed);
+                                                    builder_.CreateString("robot"),
+                                                    gps->llh.latitude,
+                                                    gps->llh.longitude,
+                                                    gps->llh.height);
 
     return new flatbuffers::Offset<foxglove::LocationFix>(location_fix);
 }
