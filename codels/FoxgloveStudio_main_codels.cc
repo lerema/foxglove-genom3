@@ -68,7 +68,7 @@ wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
         return FoxgloveStudio_pause_start;
       }
     }
-    else if (port.type == FoxgloveStudio_or_gps)
+    else if (port.type == FoxgloveStudio_or_sensor_gps)
     {
       if (gps->read(port.name, self) != genom_ok)
       {
@@ -227,11 +227,11 @@ publish_data(const sequence_FoxgloveStudio_Port *ports,
       else
         std::cerr << "Failed to read state " << port.name << std::endl;
     }
-    else if (port.type == FoxgloveStudio_or_gps)
+    else if (port.type == FoxgloveStudio_or_sensor_gps)
     {
       if (gps->read(port.name, self) == genom_ok)
       {
-        FoxgloveStudio_gps *gps_frame = gps->data(port.name, self);
+        FoxgloveStudio_solution_s *gps_frame = gps->data(port.name, self);
         flatbuffers::Offset<foxglove::LocationFix> *gps = convertor->convert(gps_frame);
 
         server->sendData(port.name, *gps, gps_frame->ts.sec * 1000000000 + gps_frame->ts.nsec);
