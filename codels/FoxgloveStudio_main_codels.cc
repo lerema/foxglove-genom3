@@ -129,6 +129,9 @@ setup_port_serialization(const sequence_FoxgloveStudio_Port *ports,
     case FoxgloveStudio_or_pose_estimator_state:
       server->addChannel(port.name, "foxglove.PoseInFrame");
       break;
+    case FoxgloveStudio_or_sensor_gps:
+      server->addChannel(port.name, "foxglove.LocationFix");
+      break;
     default:
       break;
     }
