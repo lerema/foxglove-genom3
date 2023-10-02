@@ -1,12 +1,13 @@
 
-#include "acFoxgloveStudio.h"
 #include "FoxgloveStudio_c_types.h"
-
-#include "foxglove_server.h"
+#include "acFoxgloveStudio.h"
 #include "convertor.h"
+#include "foxglove_server.h"
 
-std::unique_ptr<foxglove::FoxgloveWebsocketServer> server = std::make_unique<foxglove::FoxgloveWebsocketServer>();
-std::unique_ptr<Convertor> convertor = std::make_unique<Convertor>(server->getBuilder());
+std::unique_ptr<foxglove::FoxgloveWebsocketServer> server =
+    std::make_unique<foxglove::FoxgloveWebsocketServer>();
+std::unique_ptr<Convertor> convertor =
+    std::make_unique<Convertor>(server->getBuilder());
 
 /* --- Task main -------------------------------------------------------- */
 
@@ -17,14 +18,13 @@ std::unique_ptr<Convertor> convertor = std::make_unique<Convertor>(server->getBu
  * Throws FoxgloveStudio_e_BAD_CONFIG, FoxgloveStudio_e_BAD_PORT,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
-genom_event
-wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
-               bool start_foxglove_server,
-               const FoxgloveStudio_frames *frames,
-               const FoxgloveStudio_measure *measure,
-               const FoxgloveStudio_gps *gps,
-               const FoxgloveStudio_states *states,
-               const genom_context self)
+genom_event wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
+                           bool start_foxglove_server,
+                           const FoxgloveStudio_frames *frames,
+                           const FoxgloveStudio_measure *measure,
+                           const FoxgloveStudio_gps *gps,
+                           const FoxgloveStudio_states *states,
+                           const genom_context self)
 {
   // Check if there are any input ports connected
   if (ports->_length == 0)
@@ -93,9 +93,9 @@ wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
  * Throws FoxgloveStudio_e_BAD_CONFIG, FoxgloveStudio_e_BAD_PORT,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
-genom_event
-setup_server_configuration(const char *server_ip, uint16_t server_port,
-                           const genom_context self)
+genom_event setup_server_configuration(const char *server_ip,
+                                       uint16_t server_port,
+                                       const genom_context self)
 {
   server->startServer("0.0.0.0", 8765);
   return FoxgloveStudio_setup;
@@ -108,9 +108,8 @@ setup_server_configuration(const char *server_ip, uint16_t server_port,
  * Throws FoxgloveStudio_e_BAD_CONFIG, FoxgloveStudio_e_BAD_PORT,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
-genom_event
-setup_port_serialization(const sequence_FoxgloveStudio_Port *ports,
-                         const genom_context self)
+genom_event setup_port_serialization(const sequence_FoxgloveStudio_Port *ports,
+                                     const genom_context self)
 {
   for (uint8_t i = 0; i < ports->_length; i++)
   {
@@ -149,28 +148,40 @@ setup_port_serialization(const sequence_FoxgloveStudio_Port *ports,
  * Throws FoxgloveStudio_e_BAD_CONFIG, FoxgloveStudio_e_BAD_PORT,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
-genom_event
-publish_data(const sequence_FoxgloveStudio_Port *ports,
-             const FoxgloveStudio_frames *frames,
-             const FoxgloveStudio_measure *measure,
-             const FoxgloveStudio_states *states,
-             const FoxgloveStudio_gps *gps, const genom_context self)
+genom_event publish_data(const sequence_FoxgloveStudio_Port *ports,
+                         const FoxgloveStudio_frames *frames,
+                         const FoxgloveStudio_measure *measure,
+                         const FoxgloveStudio_states *states,
+                         const FoxgloveStudio_gps *gps,
+                         const genom_context self)
 {
   for (uint8_t i = 0; i < ports->_length; i++)
   {
     // Read image frame
     FoxgloveStudio_Port port = ports->_buffer[i];
-        if (port.type == FoxgloveStudio_or_sensor_frame)
+    if (port.type == FoxgloveStudio_or_sensor_frame)
     {
       or_sensor_frame *image_frame;
-      if (frames->read(port.name, self) == genom_ok)
+      if (frames->read(port.name, self) == genom_ok &&
+          frames->data(port.name, self))
       {
         image_frame = frames->data(port.name, self);
-        // Create flatbuffer raw image
-        auto timestamp = foxglove::Time(image_frame->ts.sec, image_frame->ts.nsec);
-        flatbuffers::Offset<foxglove::CompressedImage> *image = convertor->convert(image_frame);
 
-        server->sendData(port.name, *image, image_frame->ts.sec * 1000000000 + image_frame->ts.nsec);
+        // Check if there is data in image frame
+        if (!image_frame->pixels._length)
+        {
+          std::cerr << "No data in frame " << port.name << std::endl;
+          return FoxgloveStudio_publish;
+        }
+        // Create flatbuffer raw image
+        auto timestamp =
+            foxglove::Time(image_frame->ts.sec, image_frame->ts.nsec);
+        flatbuffers::Offset<foxglove::CompressedImage> *image =
+            convertor->convert(image_frame);
+
+        server->sendData(
+            port.name, *image,
+            image_frame->ts.sec * 1000000000 + image_frame->ts.nsec);
 
         // Release frame
         delete image, image_frame;
@@ -184,12 +195,14 @@ publish_data(const sequence_FoxgloveStudio_Port *ports,
     }
     else if (port.type == FoxgloveStudio_or_sensor_imu)
     {
-      if (measure->read(port.name, self) == genom_ok)
+      if (measure->read(port.name, self) == genom_ok &&
+          measure->data(port.name, self))
       {
         or_pose_estimator_state *imu_frame = measure->data(port.name, self);
         flatbuffers::Offset<foxglove::Imu> *imu = convertor->convert(imu_frame);
 
-        server->sendData(port.name, *imu, imu_frame->ts.sec * 1000000000 + imu_frame->ts.nsec);
+        server->sendData(port.name, *imu,
+                         imu_frame->ts.sec * 1000000000 + imu_frame->ts.nsec);
 
         // Release frame
         delete imu, imu_frame;
@@ -201,13 +214,16 @@ publish_data(const sequence_FoxgloveStudio_Port *ports,
     }
     else if (port.type == FoxgloveStudio_or_sensor_magnetometer)
     {
-      if (measure->read(port.name, self) == genom_ok)
+      if (measure->read(port.name, self) == genom_ok &&
+          measure->data(port.name, self))
       {
         or_pose_estimator_state *mag_frame = measure->data(port.name, self);
 
-        flatbuffers::Offset<foxglove::TimedVector3> *mag = convertor->convertToVec(mag_frame);
+        flatbuffers::Offset<foxglove::TimedVector3> *mag =
+            convertor->convertToVec(mag_frame);
 
-        server->sendData(port.name, *mag, mag_frame->ts.sec * 1000000000 + mag_frame->ts.nsec);
+        server->sendData(port.name, *mag,
+                         mag_frame->ts.sec * 1000000000 + mag_frame->ts.nsec);
         return FoxgloveStudio_publish;
       }
       else
@@ -215,12 +231,16 @@ publish_data(const sequence_FoxgloveStudio_Port *ports,
     }
     else if (port.type == FoxgloveStudio_or_pose_estimator_state)
     {
-      if (states->read(port.name, self) == genom_ok)
+      if (states->read(port.name, self) == genom_ok &&
+          states->data(port.name, self))
       {
         or_pose_estimator_state *state_frame = states->data(port.name, self);
-        flatbuffers::Offset<foxglove::PoseInFrame> *state = convertor->convertToPose(state_frame);
+        flatbuffers::Offset<foxglove::PoseInFrame> *state =
+            convertor->convertToPose(state_frame);
 
-        server->sendData(port.name, *state, state_frame->ts.sec * 1000000000 + state_frame->ts.nsec);
+        server->sendData(
+            port.name, *state,
+            state_frame->ts.sec * 1000000000 + state_frame->ts.nsec);
 
         // Release frame
         delete state, state_frame;
@@ -232,12 +252,14 @@ publish_data(const sequence_FoxgloveStudio_Port *ports,
     }
     else if (port.type == FoxgloveStudio_or_sensor_gps)
     {
-      if (gps->read(port.name, self) == genom_ok)
+      if (gps->read(port.name, self) == genom_ok && gps->data(port.name, self))
       {
         FoxgloveStudio_solution_s *gps_frame = gps->data(port.name, self);
-        flatbuffers::Offset<foxglove::LocationFix> *gps = convertor->convert(gps_frame);
+        flatbuffers::Offset<foxglove::LocationFix> *gps =
+            convertor->convert(gps_frame);
 
-        server->sendData(port.name, *gps, gps_frame->ts.sec * 1000000000 + gps_frame->ts.nsec);
+        server->sendData(port.name, *gps,
+                         gps_frame->ts.sec * 1000000000 + gps_frame->ts.nsec);
 
         // Release frame
         delete gps, gps_frame;
@@ -261,17 +283,17 @@ publish_data(const sequence_FoxgloveStudio_Port *ports,
  * Throws FoxgloveStudio_e_BAD_CONFIG, FoxgloveStudio_e_BAD_PORT,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
-genom_event
-setup_port_info(const char port_name[128],
-                FoxgloveStudio_PortType port_type,
-                sequence_FoxgloveStudio_Port *ports,
-                const FoxgloveStudio_frames *frames,
-                const genom_context self)
+genom_event setup_port_info(const char port_name[128],
+                            FoxgloveStudio_PortType port_type,
+                            sequence_FoxgloveStudio_Port *ports,
+                            const FoxgloveStudio_frames *frames,
+                            const genom_context self)
 {
   if (genom_sequence_reserve(ports, ports->_length + 1))
   {
     FoxgloveStudio_e_OUT_OF_MEM_detail *msg;
-    snprintf(msg->message, sizeof(msg->message), "%s", "Failed to reserve memory for ports");
+    snprintf(msg->message, sizeof(msg->message), "%s",
+             "Failed to reserve memory for ports");
     return FoxgloveStudio_e_OUT_OF_MEM(msg, self);
   }
 

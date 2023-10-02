@@ -33,7 +33,6 @@ check_info(const FoxgloveStudio_ids *ids, const genom_context self)
   return genom_ok;
 }
 
-
 /* --- Function stop_foxglove_server ------------------------------------ */
 
 /** Validation codel check_info of function stop_foxglove_server.
@@ -43,8 +42,6 @@ check_info(const FoxgloveStudio_ids *ids, const genom_context self)
  * FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
 /* already defined in service start_foxglove_server validation */
-
-
 
 /* --- Function start_foxglove_server ----------------------------------- */
 
