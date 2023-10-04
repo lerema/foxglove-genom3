@@ -70,27 +70,41 @@ flatbuffers::Offset<foxglove::CompressedImage> *Convertor::convert(const or_sens
 {
     if (frame->compressed)
     {
-      auto timestamp = foxglove::Time(frame->ts.sec, frame->ts.nsec);
-      std::vector<uint8_t> compressed = std::vector<uint8_t>(frame->pixels._buffer, frame->pixels._buffer + frame->pixels._length);
-      auto image = foxglove::CreateCompressedImage(
-          builder_, &timestamp, builder_.CreateString("camera"),
-          builder_.CreateVector(compressed),
-          builder_.CreateString("jpeg"));
+        auto timestamp = foxglove::Time(frame->ts.sec, frame->ts.nsec);
+        std::vector<uint8_t> compressed = std::vector<uint8_t>(frame->pixels._buffer, frame->pixels._buffer + frame->pixels._length);
+        auto image = foxglove::CreateCompressedImage(
+            builder_, &timestamp, builder_.CreateString("camera"),
+            builder_.CreateVector(compressed),
+            builder_.CreateString("jpeg"));
 
-      return new flatbuffers::Offset<foxglove::CompressedImage>(image);
+        return new flatbuffers::Offset<foxglove::CompressedImage>(image);
     }
-
-    // Convert the buffer to a cv::Mat
-    cv::Mat raw_image(frame->height, frame->width, CV_8UC3, frame->pixels._buffer);
-    cv::cvtColor(raw_image, raw_image, cv::COLOR_BGR2RGB);
-
     // Compression to 50% of original size
     std::vector<uint8_t> compressed;
     std::vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
     compression_params.push_back(50);
 
-    cv::imencode(".jpeg", raw_image, compressed, compression_params);
+    // Convert the buffer to a cv::Mat
+    cv::Mat raw_image;
+    if (frame->bpp == 1)
+    {
+        // Monochrome
+        raw_image = cv::Mat(frame->height, frame->width, CV_8UC1, frame->pixels._buffer);
+        cv::cvtColor(raw_image, raw_image, cv::COLOR_GRAY2BGR);
+        cv::imencode(".jpeg", raw_image, compressed, compression_params);
+    }
+    else if (frame->bpp == 3)
+    {
+        cv::Mat raw_image(frame->height, frame->width, CV_8UC3, frame->pixels._buffer);
+        cv::cvtColor(raw_image, raw_image, cv::COLOR_BGR2RGB);
+        cv::imencode(".jpeg", raw_image, compressed, compression_params);
+    }
+    else
+    {
+        std::cout << "Unsupported bpp: " << frame->bpp << std::endl;
+        return nullptr;
+    }
 
     auto timestamp = foxglove::Time(frame->ts.sec, frame->ts.nsec);
     auto image = foxglove::CreateCompressedImage(builder_,
