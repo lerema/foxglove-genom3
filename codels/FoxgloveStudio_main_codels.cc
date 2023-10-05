@@ -1,4 +1,6 @@
 
+#include "acFoxgloveStudio.h"
+
 #include "FoxgloveStudio_c_types.h"
 #include "acFoxgloveStudio.h"
 #include "convertor.h"
@@ -18,13 +20,15 @@ std::unique_ptr<Convertor> convertor =
  * Throws FoxgloveStudio_e_BAD_CONFIG, FoxgloveStudio_e_BAD_PORT,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
-genom_event wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
-                           bool start_foxglove_server,
-                           const FoxgloveStudio_frames *frames,
-                           const FoxgloveStudio_measure *measure,
-                           const FoxgloveStudio_gps *gps,
-                           const FoxgloveStudio_states *states,
-                           const genom_context self)
+genom_event
+wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
+               bool start_foxglove_server,
+               const FoxgloveStudio_frames *frames,
+               const FoxgloveStudio_measure *measure,
+               const FoxgloveStudio_gps *gps,
+               const FoxgloveStudio_states *states,
+               const FoxgloveStudio_grid_maps *grid_maps,
+               const genom_context self)
 {
   // Check if there are any input ports connected
   if (ports->_length == 0)
@@ -76,6 +80,15 @@ genom_event wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
         return FoxgloveStudio_pause_start;
       }
     }
+    else if (port.type == FoxgloveStudio_or_state_occupancy_grid)
+    {
+      if (grid_maps->read(port.name, self) != genom_ok)
+      {
+        std::cerr << "Failed to read occupancy grid " << port.name
+                  << std::endl;
+        return FoxgloveStudio_pause_start;
+      }
+    }
   }
 
   if (!start_foxglove_server)
@@ -93,9 +106,9 @@ genom_event wait_for_ports(const sequence_FoxgloveStudio_Port *ports,
  * Throws FoxgloveStudio_e_BAD_CONFIG, FoxgloveStudio_e_BAD_PORT,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
-genom_event setup_server_configuration(const char *server_ip,
-                                       uint16_t server_port,
-                                       const genom_context self)
+genom_event
+setup_server_configuration(const char *server_ip, uint16_t server_port,
+                           const genom_context self)
 {
   server->startServer("0.0.0.0", 8765);
   return FoxgloveStudio_setup;
@@ -108,8 +121,9 @@ genom_event setup_server_configuration(const char *server_ip,
  * Throws FoxgloveStudio_e_BAD_CONFIG, FoxgloveStudio_e_BAD_PORT,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
-genom_event setup_port_serialization(const sequence_FoxgloveStudio_Port *ports,
-                                     const genom_context self)
+genom_event
+setup_port_serialization(const sequence_FoxgloveStudio_Port *ports,
+                         const genom_context self)
 {
   for (uint8_t i = 0; i < ports->_length; i++)
   {
@@ -131,6 +145,9 @@ genom_event setup_port_serialization(const sequence_FoxgloveStudio_Port *ports,
     case FoxgloveStudio_or_sensor_gps:
       server->addChannel(port.name, "foxglove.LocationFix");
       break;
+    case FoxgloveStudio_or_state_occupancy_grid:
+      server->addChannel(port.name, "foxglove.Grid");
+      break;
     default:
       break;
     }
@@ -148,12 +165,14 @@ genom_event setup_port_serialization(const sequence_FoxgloveStudio_Port *ports,
  * Throws FoxgloveStudio_e_BAD_CONFIG, FoxgloveStudio_e_BAD_PORT,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
-genom_event publish_data(const sequence_FoxgloveStudio_Port *ports,
-                         const FoxgloveStudio_frames *frames,
-                         const FoxgloveStudio_measure *measure,
-                         const FoxgloveStudio_states *states,
-                         const FoxgloveStudio_gps *gps,
-                         const genom_context self)
+genom_event
+publish_data(const sequence_FoxgloveStudio_Port *ports,
+             const FoxgloveStudio_frames *frames,
+             const FoxgloveStudio_measure *measure,
+             const FoxgloveStudio_states *states,
+             const FoxgloveStudio_gps *gps,
+             const FoxgloveStudio_grid_maps *grid_maps,
+             const genom_context self)
 {
   for (uint8_t i = 0; i < ports->_length; i++)
   {
@@ -269,6 +288,25 @@ genom_event publish_data(const sequence_FoxgloveStudio_Port *ports,
       else
         std::cerr << "Failed to read gps " << port.name << std::endl;
     }
+    else if (port.type == FoxgloveStudio_or_state_occupancy_grid)
+    {
+      if (grid_maps->read(port.name, self) == genom_ok && grid_maps->data(port.name, self))
+      {
+        or_Environment_OccupancyGrid *occupancy_grid_frame = grid_maps->data(port.name, self);
+        flatbuffers::Offset<foxglove::Grid> *occupancy_grid =
+            convertor->convert(occupancy_grid_frame);
+
+        server->sendData(port.name, *occupancy_grid,
+                         std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+
+        // Release frame
+        delete occupancy_grid, occupancy_grid_frame;
+
+        server->getBuilder().Clear();
+      }
+      else
+        std::cerr << "Failed to read occupancy grid " << port.name << std::endl;
+    }
   }
 
   return FoxgloveStudio_publish;
@@ -283,11 +321,12 @@ genom_event publish_data(const sequence_FoxgloveStudio_Port *ports,
  * Throws FoxgloveStudio_e_BAD_CONFIG, FoxgloveStudio_e_BAD_PORT,
  *        FoxgloveStudio_e_OPENCV_ERROR, FoxgloveStudio_e_OUT_OF_MEM.
  */
-genom_event setup_port_info(const char port_name[128],
-                            FoxgloveStudio_PortType port_type,
-                            sequence_FoxgloveStudio_Port *ports,
-                            const FoxgloveStudio_frames *frames,
-                            const genom_context self)
+genom_event
+setup_port_info(const char port_name[128],
+                FoxgloveStudio_PortType port_type,
+                sequence_FoxgloveStudio_Port *ports,
+                const FoxgloveStudio_frames *frames,
+                const genom_context self)
 {
   if (genom_sequence_reserve(ports, ports->_length + 1))
   {

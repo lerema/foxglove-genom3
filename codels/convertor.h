@@ -10,6 +10,8 @@
 #include "foxglove/generated/TimedVector3_generated.h"
 #include "foxglove/generated/CompressedImage_generated.h"
 #include "foxglove/generated/LocationFix_generated.h"
+#include "foxglove/generated/Grid_generated.h"
+
 class Convertor
 {
 public:
@@ -22,6 +24,8 @@ public:
     flatbuffers::Offset<foxglove::Imu> *convert(const or_pose_estimator_state *state);
     flatbuffers::Offset<foxglove::TimedVector3> *convertToVec(const or_pose_estimator_state *state);
     flatbuffers::Offset<foxglove::LocationFix> *convert(const FoxgloveStudio_solution_s *gps);
+    flatbuffers::Offset<foxglove::Grid> *convert(const or_Environment_OccupancyGrid *grid);
+
 private:
     flatbuffers::FlatBufferBuilder &builder_;
 };

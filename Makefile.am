@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS=	-I autoconf
 
 # IDL source files
 idldir=		$(datadir)/idl/FoxgloveStudio
-nobase_dist_idl_DATA= foxglove.gen
+nobase_dist_idl_DATA= foxglove.gen Environment.idl
 
 pkgconfigdir=	$(libdir)/pkgconfig
 pkgconfig_DATA=

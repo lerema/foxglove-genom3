@@ -40,7 +40,7 @@ enum class SchemaDefinition
     TimedVector3,
     PoseInFrame,
     LocationFix,
-
+    Grid,
 };
 
 struct Schema
@@ -70,6 +70,8 @@ struct Schema
             return schema_path + "/PoseInFrame.bfbs";
         case SchemaDefinition::LocationFix:
             return schema_path + "/LocationFix.bfbs";
+        case SchemaDefinition::Grid:
+            return schema_path + "/Grid.bfbs";
         default:
             throw std::runtime_error("Schema definition not found.");
         }
@@ -108,6 +110,10 @@ struct Schema
         else if (schema_definition == "foxglove.LocationFix")
         {
             return schema_path + "/LocationFix.bfbs";
+        }
+        else if (schema_definition == "foxglove.Grid")
+        {
+            return schema_path + "/Grid.bfbs";
         }
         else
         {
