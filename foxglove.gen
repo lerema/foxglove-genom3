@@ -21,6 +21,7 @@
 
 #include "or/sensor/camera.gen"
 #include "or/pose/pose_estimator.gen"
+#include "Environment.idl"
 
 /* -------------------------- MODULE DECLARATION --------------------------- */
 component FoxgloveStudio {
@@ -42,7 +43,8 @@ component FoxgloveStudio {
     or_sensor_imu,
     or_sensor_magnetometer,
     or_pose_estimator_state,
-    or_sensor_gps
+    or_sensor_gps,
+    or_state_occupancy_grid
   };
 
   struct Port {
@@ -158,17 +160,21 @@ component FoxgloveStudio {
     doc "The pose estimation states.";
   };
 
+  port multiple in or::Environment::OccupancyGrid grid_maps {
+    doc "The 2D occupancy grid maps.";
+  };
+
   /* ------------------ TASK DEFINITION -------------------- */
   task main {
     doc "Publish to foxglove studio.";
 
-    codel<start> wait_for_ports(ids in ports, ids in start_foxglove_server, in frames, in measure, in gps, in states)
+    codel<start> wait_for_ports(ids in ports, ids in start_foxglove_server, in frames, in measure, in gps, in states, in grid_maps)
         yield server, pause::start;
     codel<server> setup_server_configuration(ids in server_ip, ids in server_port)
         yield setup;
     codel<setup> setup_port_serialization(ids in ports)
         yield publish, start;
-    codel<publish> publish_data(ids in ports, in frames, in measure, in states, in gps)
+    codel<publish> publish_data(ids in ports, in frames, in measure, in states, in gps, in grid_maps)
         yield publish, pause::start;
 
     throw e_BAD_CONFIG, e_BAD_PORT, e_OPENCV_ERROR, e_OUT_OF_MEM;

@@ -217,6 +217,28 @@ The pose estimation states.
 
 '''
 
+[[grid_maps]]
+=== grid_maps (multiple in)
+
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Data structure
+[disc]
+ * `struct ::or::Environment::OccupancyGrid` `grid_maps`
+ ** `sequence< octet >` `data`
+ ** `octet` `width`
+ ** `octet` `height`
+ ** `double` `resolution`
+ ** `double` `origin_x`
+ ** `double` `origin_y`
+
+|===
+
+The 2D occupancy grid maps.
+
+'''
+
 == Services
 
 [[add_port]]
@@ -228,7 +250,7 @@ a|.Inputs
 [disc]
  * `string<128>` `port_name` Genom port name
 
- * `enum ::FoxgloveStudio::PortType` `port_type` Genom port type ∈ { `or_sensor_frame`, `or_sensor_imu`, `or_sensor_magnetometer`, `or_pose_estimator_state`, `or_sensor_gps` }
+ * `enum ::FoxgloveStudio::PortType` `port_type` Genom port type ∈ { `or_sensor_frame`, `or_sensor_imu`, `or_sensor_magnetometer`, `or_pose_estimator_state`, `or_sensor_gps`, `or_state_occupancy_grid` }
 
 a|.Throws
 [disc]
@@ -383,6 +405,7 @@ a|.Context
 * Reads port `<<measure>>`
 * Reads port `<<gps>>`
 * Reads port `<<states>>`
+* Reads port `<<grid_maps>>`
 a|.Throws
 [disc]
  * `exception ::FoxgloveStudio::e_BAD_CONFIG`

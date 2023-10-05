@@ -170,3 +170,28 @@ flatbuffers::Offset<foxglove::LocationFix> *Convertor::convert(const FoxgloveStu
 
     return new flatbuffers::Offset<foxglove::LocationFix>(location_fix);
 }
+
+flatbuffers::Offset<foxglove::Grid> *Convertor::convert(const or_Environment_OccupancyGrid *grid)
+{
+    auto timestamp = foxglove::Time();
+    auto frame_id = builder_.CreateString("map");
+    auto pose = foxglove::CreatePose(builder_,
+                                     foxglove::CreateVector3(builder_, grid->origin_x, grid->origin_y, 0),
+                                     foxglove::CreateQuaternion(builder_, 0, 0, 0, 1));
+    auto data = builder_.CreateVector(grid->data._buffer, grid->data._length);
+    auto cell_size = foxglove::CreateVector2(builder_, grid->resolution, grid->resolution);
+    auto field_type = foxglove::CreatePackedElementField(builder_, builder_.CreateString("map_info"), 0, foxglove::NumericType_UINT8);
+
+    auto grid_data = foxglove::CreateGrid(builder_,
+                                          &timestamp,
+                                          frame_id,
+                                          pose,
+                                          grid->width,
+                                          cell_size,
+                                          0,
+                                          0,
+                                          field_type,
+                                          data);
+
+    return new flatbuffers::Offset<foxglove::Grid>(grid_data);
+}
