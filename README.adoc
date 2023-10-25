@@ -252,9 +252,48 @@ a|.Context
 [disc]
   * In task `<<main>>`
   * Reads port `<<frames>>`
+  * Reads port `<<measure>>`
+  * Reads port `<<gps>>`
+  * Reads port `<<states>>`
 |===
 
 Add a port to the list of ports to be published.
+
+'''
+
+[[remove_port]]
+=== remove_port (activity)
+
+[role="small", width="50%", float="right", cols="1"]
+|===
+a|.Inputs
+[disc]
+ * `string<128>` `port_name` Genom port name
+
+a|.Throws
+[disc]
+ * `exception ::FoxgloveStudio::e_BAD_CONFIG`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_BAD_PORT`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_OPENCV_ERROR`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+ * `exception ::FoxgloveStudio::e_OUT_OF_MEM`
+ ** `short` `code`
+ ** `string<128>` `message`
+
+a|.Context
+[disc]
+  * In task `<<main>>`
+|===
+
+Remove a port from the list of ports to be published.
 
 '''
 

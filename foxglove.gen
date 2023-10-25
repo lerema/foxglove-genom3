@@ -162,14 +162,8 @@ component FoxgloveStudio {
   task main {
     doc "Publish to foxglove studio.";
 
-    codel<start> wait_for_ports(ids in ports, ids in start_foxglove_server, in frames, in measure, in gps, in states)
-        yield server, pause::start;
-    codel<server> setup_server_configuration(ids in server_ip, ids in server_port)
-        yield setup;
-    codel<setup> setup_port_serialization(ids in ports)
-        yield publish, start;
-    codel<publish> publish_data(ids in ports, in frames, in measure, in states, in gps)
-        yield publish, pause::start;
+    codel<start> setup_server_configuration(ids in server_ip, ids in server_port)
+        yield ether;
 
     throw e_BAD_CONFIG, e_BAD_PORT, e_OPENCV_ERROR, e_OUT_OF_MEM;
   };
@@ -179,7 +173,21 @@ component FoxgloveStudio {
     doc "Add a port to the list of ports to be published.";
     task main;
 
-    codel<start> setup_port_info(in port_name, in port_type, ids out ports, in frames)
+    codel<start> setup_port_info(in port_name, in port_type, ids inout ports)
+        yield ready, pause::start;
+    codel <ready> wait_for_publishing(ids in start_foxglove_server)
+        yield publish, ready, ether;
+    codel<publish> publish_data(ids in start_foxglove_server, ids in ports, in frames, in measure, in states, in gps)
+        yield publish, ready, pause::start;
+
+    throws e_BAD_PORT, e_OUT_OF_MEM;
+  };
+
+  activity remove_port(in string<128> port_name =: "Genom port name") {
+    doc "Remove a port from the list of ports to be published.";
+    task main;
+
+    codel<start> remove_port_info(in port_name, ids inout ports)
         yield ether;
 
     throws e_BAD_PORT, e_OUT_OF_MEM;
