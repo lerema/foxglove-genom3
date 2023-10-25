@@ -132,6 +132,7 @@ public:
   void stop() override;
 
   std::vector<ChannelId> addChannels(const std::vector<ChannelWithoutId>& channels) override;
+  ChannelId addChannel(const ChannelWithoutId& channel);
   void removeChannels(const std::vector<ChannelId>& channelIds) override;
   void publishParameterValues(ConnHandle clientHandle, const std::vector<Parameter>& parameters,
                               const std::optional<std::string>& requestId = std::nullopt) override;
@@ -829,6 +830,14 @@ inline std::vector<ChannelId> Server<ServerConfiguration>::addChannels(
   }
 
   return channelIds;
+}
+
+template <typename ServerConfiguration>
+inline ChannelId Server<ServerConfiguration>::addChannel(
+    const ChannelWithoutId& channel) {
+  std::vector<ChannelWithoutId> channels{channel};
+  const auto channelIds = addChannels(channels);
+  return channelIds[0];
 }
 
 template <typename ServerConfiguration>

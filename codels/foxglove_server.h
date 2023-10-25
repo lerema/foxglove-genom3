@@ -139,7 +139,9 @@ namespace foxglove
             channel.schema = foxglove::base64Encode(getFileContents(schema_.getSchemaDefinitionPath(schema_name)));
 
             channels_.push_back(channel);
-
+            auto channel_id = server_->addChannel(channel);
+            channel_ids_map_[topic_name] = channel_id;
+            channel_ids_.push_back(channel_id);
             std::cout << "added channel " << topic_name << " with schema " << schema_name << std::endl;
         }
 
