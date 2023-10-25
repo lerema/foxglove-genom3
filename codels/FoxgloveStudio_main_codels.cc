@@ -94,7 +94,7 @@ genom_event setup_port_info(const char port_name[128],
 genom_event wait_for_publishing(bool start_foxglove_server,
                                 const genom_context self) {
   if (start_foxglove_server) {
-    server->addChannels();
+    // server->addChannels();
     return FoxgloveStudio_publish;
 
   } else
